@@ -8,7 +8,17 @@ stages:
 variables:
   CBCURL: https://github.com/ikus060/Cbc
 
-# TODO We should probably fixe the version and not use master HERE.
+# TODO We should probably fix the version and not use master HERE.
+
+# Create a Docker images with SWIG
+prebuild-docker-image:
+  image: docker:stable
+  stage: prebuild
+  script:
+  - docker login $DOCKER_REGISTRY -u $DOCKER_USR -p $DOCKER_PWD
+  - docker build -t cbcpy-build .
+  - docker tag cbcpy-build $DOCKER_REGISTRY/pdsl/cbcpy-build:$CI_PIPELINE_IID
+  - docker push $DOCKER_REGISTRY/pdsl/cbcpy-build:$CI_PIPELINE_IID
 
 .build:  &build
   stage: build
@@ -23,16 +33,6 @@ variables:
     paths:
     - build
 
-# Create a Docker images with SWIG
-prebuild-docker-image:
-  image: docker:stable
-  stage: prebuild
-  script:
-  - docker login $DOCKER_REGISTRY -u $DOCKER_USR -p $DOCKER_PWD
-  - docker build -t cbcpy-build .
-  - docker tag cbcpy-build $DOCKER_REGISTRY/pdsl/cbcpy-build:$CI_PIPELINE_IID
-  - docker push $DOCKER_REGISTRY/pdsl/cbcpy-build:$CI_PIPELINE_IID
-
 build_py2:
   <<: *build
   variables:
@@ -45,42 +45,50 @@ build_py3:
     TARGET: x86_64-linux-gnu
     PYTHON: python2
     
-publish_nexus_py2:
+.publish:  &publish
   stage: publish
-  dependencies:
-  - build_py2
   script:
-  - pip2 install wheel twine --upgrade
-  - python2 setup.py bdist_wheel
-  - twine upload dist/* -u $NEXUS_USR -p $NEXUS_PWD --repository-url $NEXUS_PYPI_URL
-  
-publish_nexus_py3:
-  stage: publish
-  dependencies:
-  - build_py3
-  script:
-  - pip3 install wheel twine --upgrade
-  - python3 setup.py bdist_wheel
+  - $PYTHON -m pip install wheel twine --upgrade
+  - $PYTHON setup.py bdist_wheel
   - twine upload dist/* -u $NEXUS_USR -p $NEXUS_PWD --repository-url $NEXUS_PYPI_URL
 
-publish_pypi_py2:
+publish_nexus_py2:
+  <<: *publish
   stage: publish
+  variables:
+    PYTHON: python2
   dependencies:
   - build_py2
-  only:
-  - tags
-  script:
-  - pip3 install wheel twine --upgrade
-  - python3 setup.py bdist_wheel
-  - twine upload dist/* -u $PYPI_USR -p $PYPI_PWD
-  
-publish_pypi_py3:
+
+publish_nexus_py3:
+  <<: *publish
   stage: publish
+  variables:
+    PYTHON: python3
   dependencies:
   - build_py3
+  
+.publish_pypi:  &publish_pypi
+  stage: publish
   only:
   - tags
   script:
-  - pip3 install wheel twine --upgrade
-  - python3 setup.py bdist_wheel
+  - $PYTHON -m pip install wheel twine --upgrade
+  - $PYTHON setup.py bdist_wheel
   - twine upload dist/* -u $PYPI_USR -p $PYPI_PWD
+
+publish_pypi_py2:
+  <<: *publish_pypi
+  stage: publish
+  variables:
+    PYTHON: python2
+  dependencies:
+  - build_py2
+  
+publish_pypi_py3:
+  <<: *publish_pypi
+  stage: publish
+  variables:
+    PYTHON: python3
+  dependencies:
+  - build_py3
