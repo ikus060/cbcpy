@@ -47,7 +47,7 @@ build_py3:
     
 publish_nexus_py2:
   stage: publish
-  dependecies:
+  dependencies:
   - build_py2
   script:
   - pip2 install wheel twine --upgrade
@@ -56,7 +56,7 @@ publish_nexus_py2:
   
 publish_nexus_py3:
   stage: publish
-  dependecies:
+  dependencies:
   - build_py3
   script:
   - pip3 install wheel twine --upgrade
@@ -65,7 +65,7 @@ publish_nexus_py3:
 
 publish_pypi_py2:
   stage: publish
-  dependecies:
+  dependencies:
   - build_py2
   only:
   - tags
@@ -76,7 +76,7 @@ publish_pypi_py2:
   
 publish_pypi_py3:
   stage: publish
-  dependecies:
+  dependencies:
   - build_py3
   only:
   - tags
@@ -84,4 +84,3 @@ publish_pypi_py3:
   - pip3 install wheel twine --upgrade
   - python3 setup.py bdist_wheel
   - twine upload dist/* -u $PYPI_USR -p $PYPI_PWD
-
