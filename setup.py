@@ -22,4 +22,7 @@ setup(
     license="GPLv3",
     ext_modules=[Extension('_cbcpy', ['cbcpy.i'], swig_opts=['-modern', '-I../include'])],
     py_modules=['cbcpy'],
+    setup_requires=[
+        "setuptools_scm",
+    ],
 )

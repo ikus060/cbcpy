@@ -11,7 +11,8 @@ stages:
   before_script:
   # Install & Compile CBC
   - wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
-  - bash ./coinbrew build https://github.com/coin-or/Cbc --no-prompt --no-third-party --parallel-jobs=`nproc`
+  - bash ./coinbrew fetch https://github.com/coin-or/Cbc --no-prompt --no-third-party
+  - bash ./coinbrew build Cbc --no-prompt --parallel-jobs=`nproc` --disable-shared
 
 # Create a Docker images with SWIG
 prebuild-docker-image:
@@ -26,5 +27,10 @@ prebuild-docker-image:
 build:py2:
   <<: *build
   script:
-  - python setup.py build_ext --swig-opts="-modern -I../include"
+  - python2 setup.py build_ext --swig-cpp --swig-opts="-I./build/include/coin/" -I./build/include/coin/ -L./build/lib/ -lCbcSolver -lCbc -lCgl -lOsiClp -lOsiCbc -lOsi -lClp
+
+build:py3:
+  <<: *build
+  script:
+  - python3 setup.py build_ext --swig-cpp --swig-opts="-I./build/include/coin/" -I./build/include/coin/ -L./build/lib/ -lCbcSolver -lCbc -lCgl -lOsiClp -lOsiCbc -lOsi -lClp
   
