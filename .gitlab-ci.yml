@@ -95,7 +95,7 @@ build_py3_win64:
   before_script:
   - apt update && apt install -y gcc-mingw-w64 mingw-w64 g++-multilib
   allow_failure: true
-   
+
 #
 # Publish to Nexus Stages
 #
