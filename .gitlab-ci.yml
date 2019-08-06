@@ -3,6 +3,9 @@ stages:
 - build
 - publish
 
+variables:
+  CBCURL: https://github.com/ikus060/Cbc
+
 # TODO We should probably fixe the version and not use master HERE.
 
 .build:  &build
@@ -11,8 +14,10 @@ stages:
   before_script:
   # Install & Compile CBC
   - wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
-  - bash ./coinbrew fetch https://github.com/coin-or/Cbc --no-prompt --no-third-party
-  - bash ./coinbrew build Cbc --no-prompt --parallel-jobs=`nproc` --disable-shared
+  - bash ./coinbrew fetch $CBCURL --no-prompt --no-third-party
+  - bash ./coinbrew build Cbc --no-prompt --parallel-jobs=`nproc` --disable-shared --with-pic --target=$TARGET --host=$TARGET
+  script:
+  - $PYTHON setup.py build_ext --swig-opts="-c++ -I./build/include/coin/" -I./build/include/coin/ -L./build/lib/
 
 # Create a Docker images with SWIG
 prebuild-docker-image:
@@ -26,11 +31,12 @@ prebuild-docker-image:
 
 build:py2:
   <<: *build
-  script:
-  - python2 setup.py build_ext --swig-cpp --swig-opts="-I./build/include/coin/" -I./build/include/coin/ -L./build/lib/ -lCbcSolver -lCbc -lCgl -lOsiClp -lOsiCbc -lOsi -lClp
+  variables:
+    TARGET: x86_64-linux-gnu
+    PYTHON: python2
 
 build:py3:
   <<: *build
-  script:
-  - python3 setup.py build_ext --swig-cpp --swig-opts="-I./build/include/coin/" -I./build/include/coin/ -L./build/lib/ -lCbcSolver -lCbc -lCgl -lOsiClp -lOsiCbc -lOsi -lClp
-  
+  variables:
+    TARGET: x86_64-linux-gnu
+    PYTHON: python2
