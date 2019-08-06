@@ -97,55 +97,20 @@ build_py3_win64:
   allow_failure: true
 
 #
-# Publish to Nexus Stages
+# Publish
 #
-
-.publish_nexus:  &publish_nexus
-  stage: publish
-  script:
-  - $PYTHON -m pip install twine --upgrade
-  - twine upload dist/* -u $NEXUS_USR -p $NEXUS_PWD --repository-url $NEXUS_PYPI_URL
 
 publish_nexus_py2:
-  <<: *publish_nexus
   stage: publish
-  variables:
-    PYTHON: python2
-  dependencies:
-  - build_py2_linux64
+  script:
+  - pip3 install twine --upgrade
+  - twine upload dist/* -u $NEXUS_USR -p $NEXUS_PWD --repository-url $NEXUS_PYPI_URL
 
-publish_nexus_py3:
-  <<: *publish_nexus
-  stage: publish
-  variables:
-    PYTHON: python3
-  dependencies:
-  - build_py3_linux64
-  
-#
-# Publish PyPi Stages
-#
-  
-.publish_pypi:  &publish_pypi
+publish_pypi:
   stage: publish
   only:
   - tags
   script:
-  - $PYTHON -m pip install twine --upgrade
+  - pip3 install twine --upgrade
   - twine upload dist/* -u $PYPI_USR -p $PYPI_PWD
-
-publish_pypi_py2:
-  <<: *publish_pypi
-  stage: publish
-  variables:
-    PYTHON: python2
-  dependencies:
-  - build_py2_linux64
   
-publish_pypi_py3:
-  <<: *publish_pypi
-  stage: publish
-  variables:
-    PYTHON: python3
-  dependencies:
-  - build_py3_linux64
