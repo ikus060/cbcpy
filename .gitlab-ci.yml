@@ -1,6 +1,5 @@
-image: ikus060/docker-debian-py2-py3:stretch
-
 stages:
+- prebuild
 - build
 - publish
 
@@ -8,11 +7,24 @@ stages:
 
 .build:  &build
   stage: build
+  image: $DOCKER_REGISTRY/pdsl/cbcpy-build:$CI_PIPELINE_IID
   before_script:
-  - apt update && apt install -y gfortran
+  # Install & Compile CBC
   - wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
   - bash ./coinbrew build https://github.com/coin-or/Cbc --no-prompt --no-third-party --parallel-jobs=`nproc`
 
+# Create a Docker images with SWIG
+prebuild-docker-image:
+  image: docker:stable
+  stage: prebuild
+  script:
+  - docker login $DOCKER_REGISTRY -u $DOCKER_USR -p $DOCKER_PWD
+  - docker build -t cbcpy-build .
+  - docker tag cbcpy-build $DOCKER_REGISTRY/pdsl/cbcpy-build:$CI_PIPELINE_IID
+  - docker push $DOCKER_REGISTRY/pdsl/cbcpy-build:$CI_PIPELINE_IID
+
 build:py2:
   <<: *build
+  script:
+  - python setup.py build_ext --swig-opts="-modern -I../include"
   

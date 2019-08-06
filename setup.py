@@ -6,11 +6,11 @@
 # TODO Add the right license.
 
 try:
-    from setuptools import setup
+    from setuptools import setup, Extension
 except ImportError:
     import ez_setup
     ez_setup.use_setuptools()
-    from setuptools import setup
+    from setuptools import setup, Extension
 
 setup(
     name='cbcpy',
