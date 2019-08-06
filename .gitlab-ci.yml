@@ -61,6 +61,9 @@ build_py2_win32:
     LDFLAGS: -static-libgcc -static-libstdc++
     TARGET: i686-w64-mingw32
     PYTHON: python2
+  before_script:
+  - apt update && apt install -y gcc-mingw-w64 mingw-w64 g++-multilib
+  allow_failure: true
 
 build_py3_win32:
   <<: *build
@@ -69,6 +72,9 @@ build_py3_win32:
     LDFLAGS: -static-libgcc -static-libstdc++
     TARGET: i686-w64-mingw32
     PYTHON: python3
+  before_script:
+  - apt update && apt install -y gcc-mingw-w64 mingw-w64 g++-multilib
+  allow_failure: true
     
 build_py2_win64:
   <<: *build
@@ -76,6 +82,9 @@ build_py2_win64:
     LDFLAGS: -static-libgcc -static-libstdc++
     TARGET: x86_64-w64-mingw32
     PYTHON: python2
+  before_script:
+  - apt update && apt install -y gcc-mingw-w64 mingw-w64 g++-multilib
+  allow_failure: true
 
 build_py3_win64:
   <<: *build
@@ -83,6 +92,9 @@ build_py3_win64:
     LDFLAGS: -static-libgcc -static-libstdc++
     TARGET: x86_64-w64-mingw32
     PYTHON: python3
+  before_script:
+  - apt update && apt install -y gcc-mingw-w64 mingw-w64 g++-multilib
+  allow_failure: true
    
 #
 # Publish to Nexus Stages
