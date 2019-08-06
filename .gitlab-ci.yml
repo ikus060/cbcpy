@@ -1,3 +1,5 @@
+image: $DOCKER_REGISTRY/pdsl/cbcpy-build:$CI_PIPELINE_IID
+
 stages:
 - prebuild
 - build
@@ -10,7 +12,6 @@ variables:
 
 .build:  &build
   stage: build
-  image: $DOCKER_REGISTRY/pdsl/cbcpy-build:$CI_PIPELINE_IID
   before_script:
   # Install & Compile CBC
   - wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
@@ -18,6 +19,9 @@ variables:
   - bash ./coinbrew build Cbc --no-prompt --parallel-jobs=`nproc` --disable-shared --with-pic --target=$TARGET --host=$TARGET
   script:
   - $PYTHON setup.py build_ext --swig-opts="-c++ -I./build/include/coin/" -I./build/include/coin/ -L./build/lib/
+  artifacts:
+    path:
+    - build
 
 # Create a Docker images with SWIG
 prebuild-docker-image:
@@ -29,14 +33,55 @@ prebuild-docker-image:
   - docker tag cbcpy-build $DOCKER_REGISTRY/pdsl/cbcpy-build:$CI_PIPELINE_IID
   - docker push $DOCKER_REGISTRY/pdsl/cbcpy-build:$CI_PIPELINE_IID
 
-build:py2:
+build_py2:
   <<: *build
   variables:
     TARGET: x86_64-linux-gnu
     PYTHON: python2
 
-build:py3:
+build_py3:
   <<: *build
   variables:
     TARGET: x86_64-linux-gnu
     PYTHON: python2
+    
+publish_nexus_py2:
+  stage: publish
+  dependecies:
+  - build_py2
+  script:
+  - pip2 install wheel twine --upgrade
+  - python2 setup.py bdist_wheel
+  - twine upload dist/* -u $NEXUS_USR -p $NEXUS_PWD --repository-url $NEXUS_PYPI_URL
+  
+publish_nexus_py3:
+  stage: publish
+  dependecies:
+  - build_py3
+  script:
+  - pip3 install wheel twine --upgrade
+  - python3 setup.py bdist_wheel
+  - twine upload dist/* -u $NEXUS_USR -p $NEXUS_PWD --repository-url $NEXUS_PYPI_URL
+
+publish_pypi_py2:
+  stage: publish
+  dependecies:
+  - build_py2
+  only:
+  - tags
+  script:
+  - pip3 install wheel twine --upgrade
+  - python3 setup.py bdist_wheel
+  - twine upload dist/* -u $PYPI_USR -p $PYPI_PWD
+  
+publish_pypi_py3:
+  stage: publish
+  dependecies:
+  - build_py3
+  only:
+  - tags
+  script:
+  - pip3 install wheel twine --upgrade
+  - python3 setup.py bdist_wheel
+  - twine upload dist/* -u $PYPI_USR -p $PYPI_PWD
+
