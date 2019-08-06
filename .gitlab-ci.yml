@@ -88,7 +88,6 @@ build_py3_win64:
 # Publish to Nexus Stages
 #
 
-   
 .publish_nexus:  &publish_nexus
   stage: publish
   script:
@@ -129,7 +128,7 @@ publish_pypi_py2:
   variables:
     PYTHON: python2
   dependencies:
-  - build_py2
+  - build_py2_linux64
   
 publish_pypi_py3:
   <<: *publish_pypi
@@ -137,4 +136,4 @@ publish_pypi_py3:
   variables:
     PYTHON: python3
   dependencies:
-  - build_py3
+  - build_py3_linux64
