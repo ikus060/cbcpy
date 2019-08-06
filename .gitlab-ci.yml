@@ -1,0 +1,18 @@
+image: ikus060/docker-debian-py2-py3:stretch
+
+stages:
+- build
+- publish
+
+# TODO We should probably fixe the version and not use master HERE.
+
+.build:  &build
+  stage: build
+  before_script:
+  - apt update && apt install -y gfortran
+  - wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
+  - bash ./coinbrew build https://github.com/coin-or/Cbc --no-prompt --no-third-party --parallel-jobs=`nproc`
+
+build:py2:
+  <<: *build
+  
