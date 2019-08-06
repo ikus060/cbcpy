@@ -20,7 +20,7 @@ variables:
   script:
   - $PYTHON setup.py build_ext --swig-opts="-c++ -I./build/include/coin/" -I./build/include/coin/ -L./build/lib/
   artifacts:
-    path:
+    paths:
     - build
 
 # Create a Docker images with SWIG
