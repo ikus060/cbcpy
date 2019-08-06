@@ -10,7 +10,9 @@ variables:
 
 # TODO We should probably fix the version and not use master HERE.
 
+#
 # Create a Docker images with SWIG
+#
 prebuild-docker-image:
   image: docker:stable
   stage: prebuild
@@ -20,61 +22,105 @@ prebuild-docker-image:
   - docker tag cbcpy-build $DOCKER_REGISTRY/pdsl/cbcpy-build:$CI_PIPELINE_IID
   - docker push $DOCKER_REGISTRY/pdsl/cbcpy-build:$CI_PIPELINE_IID
 
+#
+# Build Stages.
+#
+
 .build:  &build
   stage: build
-  before_script:
+  script:
   # Install & Compile CBC
   - wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
   - bash ./coinbrew fetch $CBCURL --no-prompt --no-third-party
   - bash ./coinbrew build Cbc --no-prompt --parallel-jobs=`nproc` --disable-shared --with-pic --target=$TARGET --host=$TARGET
-  script:
-  - $PYTHON setup.py build_ext --swig-opts="-c++ -I./build/include/coin/" -I./build/include/coin/ -L./build/lib/
+  # Compile python module
+  - $PYTHON setup.py build_ext --swig-opts="-c++ -I./build/include/coin/" -I./build/include/coin/ -L./build/lib/ --plat-name $TARGET
+  # Build package
+  - $PYTHON -m pip install wheel --upgrade
+  - $PYTHON setup.py bdist_wheel
   artifacts:
     paths:
-    - build
+    - dist
 
-build_py2:
+build_py2_linux64:
   <<: *build
   variables:
     TARGET: x86_64-linux-gnu
     PYTHON: python2
 
-build_py3:
+build_py3_linux64:
   <<: *build
   variables:
     TARGET: x86_64-linux-gnu
-    PYTHON: python2
+    PYTHON: python3
     
-.publish:  &publish
+build_py2_win32:
+  <<: *build
+  variables:
+    CXXFLAGS: -D__MINGW64__
+    LDFLAGS: -static-libgcc -static-libstdc++
+    TARGET: i686-w64-mingw32
+    PYTHON: python2
+
+build_py3_win32:
+  <<: *build
+  variables:
+    CXXFLAGS: -D__MINGW64__
+    LDFLAGS: -static-libgcc -static-libstdc++
+    TARGET: i686-w64-mingw32
+    PYTHON: python3
+    
+build_py2_win64:
+  <<: *build
+  variables:
+    LDFLAGS: -static-libgcc -static-libstdc++
+    TARGET: x86_64-w64-mingw32
+    PYTHON: python2
+
+build_py3_win64:
+  <<: *build
+  variables:
+    LDFLAGS: -static-libgcc -static-libstdc++
+    TARGET: x86_64-w64-mingw32
+    PYTHON: python3
+   
+#
+# Publish to Nexus Stages
+#
+
+   
+.publish_nexus:  &publish_nexus
   stage: publish
   script:
-  - $PYTHON -m pip install wheel twine --upgrade
-  - $PYTHON setup.py bdist_wheel
+  - $PYTHON -m pip install twine --upgrade
   - twine upload dist/* -u $NEXUS_USR -p $NEXUS_PWD --repository-url $NEXUS_PYPI_URL
 
 publish_nexus_py2:
-  <<: *publish
+  <<: *publish_nexus
   stage: publish
   variables:
     PYTHON: python2
   dependencies:
-  - build_py2
+  - build_py2_linux64
 
 publish_nexus_py3:
-  <<: *publish
+  <<: *publish_nexus
   stage: publish
   variables:
     PYTHON: python3
   dependencies:
-  - build_py3
+  - build_py3_linux64
+  
+#
+# Publish PyPi Stages
+#
   
 .publish_pypi:  &publish_pypi
   stage: publish
   only:
   - tags
   script:
-  - $PYTHON -m pip install wheel twine --upgrade
-  - $PYTHON setup.py bdist_wheel
+  - $PYTHON -m pip install twine --upgrade
   - twine upload dist/* -u $PYPI_USR -p $PYPI_PWD
 
 publish_pypi_py2:
