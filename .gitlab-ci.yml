@@ -32,7 +32,7 @@ prebuild-docker-image:
   # Install & Compile CBC
   - wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
   - bash ./coinbrew fetch $CBCURL --no-prompt --no-third-party
-  - bash ./coinbrew build Cbc --no-prompt --parallel-jobs=`nproc` --disable-shared --with-pic --target=$TARGET --host=$TARGET
+  - bash ./coinbrew build Cbc --no-prompt --disable-shared --with-pic --target=$TARGET --host=$TARGET
   # Compile python module
   - $PYTHON setup.py build_ext --swig-opts="-c++ -I./build/include/coin/" -I./build/include/coin/ -L./build/lib/ --plat-name $TARGET
   # Build package
