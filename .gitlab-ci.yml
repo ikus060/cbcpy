@@ -28,7 +28,7 @@ stages:
   - python setup.py bdist_wheel
   # Test the packages
   - pip install dist/*.whl
-  - python -m cbcpy
+  - LD_LIBRARY_PATH=./Cbc/lib/ python -m cbcpy
   artifacts:
     paths:
     - dist
