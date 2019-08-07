@@ -4,8 +4,9 @@ stages:
 - publish
 
 variables:
-  CBCURL: https://github.com/ikus060/Cbc
-  COINBREWURL: https://raw.githubusercontent.com/coin-or/coinbrew/42bc4ddd6698c7cd6a154147852522f2e061d1c7/coinbrew
+  CBC_FILE: Cbc-2.10.3-linux-x86_64-gcc4.8.tgz
+#  CBCURL: https://github.com/ikus060/Cbc
+#  COINBREWURL: https://raw.githubusercontent.com/coin-or/coinbrew/42bc4ddd6698c7cd6a154147852522f2e061d1c7/coinbrew
 
 # TODO We should probably fix the version and not use master HERE.
 
@@ -23,13 +24,19 @@ variables:
   - ./configure && make && make install
   - cd ..
   script: 
-  - apt update && apt install -y gfortran
   # Install & Compile CBC
-  - wget $COINBREWURL
-  - bash ./coinbrew fetch $CBCURL --no-prompt --no-third-party
-  - bash ./coinbrew build Cbc --no-prompt --disable-shared --with-pic --host=$TARGET
+  #- apt update && apt install -y gfortran
+  #- wget $COINBREWURL
+  #- bash ./coinbrew fetch $CBCURL --no-prompt --no-third-party
+  #- bash ./coinbrew build Cbc --no-prompt --disable-shared --with-pic --host=$TARGET
+  - mkdir Cbc && cd Cbc
+  - wget https://bintray.com/coin-or/download/download_file?file_path=$CBC_FILE -O $CBC_FILE
+  - tar -zxvf $CBC_FILE
+  - for FILE in patches/*.diff; do patch -p0 < $FILE; done
+  - cd ..
   # Compile python module
-  - python setup.py build_ext --swig-opts="-c++ -I./build/include/coin/" -I./build/include/coin/ -L./build/lib/
+  #- python setup.py build_ext --swig-opts="-c++ -I./build/include/coin/" -I./build/include/coin/ -L./build/lib/
+  - python setup.py build_ext --swig-opts="-c++ -I./Cbc/include/coin/" -I./Cbc/include/coin/ -L./Cbc/lib/
   # Build package
   - python -m pip install wheel --upgrade
   - python setup.py bdist_wheel

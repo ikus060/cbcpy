@@ -1,0 +1,12 @@
+diff --git a/Cbc/include/coin/CbcModel.hpp b/Cbc/include/coin/CbcModel.hpp
+index 9dad51dd..b1e32b4f 100644
+--- a/Cbc/include/coin/CbcModel.hpp
++++ b/Cbc/include/coin/CbcModel.hpp
+@@ -3241,7 +3241,6 @@ void getIntegerInformation(const OsiObject *object, double &originalLower,
+ // So we can call from other programs
+ // Real main program
+ class OsiClpSolverInterface;
+-int CbcMain(int argc, const char *argv[], OsiClpSolverInterface &solver, CbcModel **babSolver);
+ int CbcMain(int argc, const char *argv[], CbcModel &babSolver);
+ // four ways of calling
+ int callCbc(const char *input2, OsiClpSolverInterface &solver1);

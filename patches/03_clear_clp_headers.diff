@@ -1,0 +1,46 @@
+diff --git a/Cbc/include/coin/OsiClpSolverInterface.cpp b/Cbc/include/coin/OsiClpSolverInterface.cpp
+index 1a38b6f..6cbaca9 100644
+--- a/Cbc/include/coin/OsiClpSolverInterface.cpp
++++ b/Cbc/include/coin/OsiClpSolverInterface.cpp
+@@ -2787,7 +2787,6 @@ void OsiClpSolverInterface::unmarkHotStart()
+   modelPtr_->specialOptions_ = saveData_.specialOptions_;
+ }
+ 
+-#ifdef CONFLICT_CUTS
+ // Return a conflict analysis cut from small model
+ OsiRowCut *
+ OsiClpSolverInterface::smallModelCut(const double *originalLower, const double *originalUpper,
+@@ -3581,7 +3580,6 @@ OsiClpSolverInterface::modelCut(const double *originalLower, const double *origi
+   }
+   return cut;
+ }
+-#endif
+ 
+ //#############################################################################
+ // Problem information methods (original data)
+diff --git a/Cbc/include/coin/OsiClpSolverInterface.hpp b/Cbc/include/coin/OsiClpSolverInterface.hpp
+index 15a8a7c..9b94574 100644
+--- a/Cbc/include/coin/OsiClpSolverInterface.hpp
++++ b/Cbc/include/coin/OsiClpSolverInterface.hpp
+@@ -174,13 +174,9 @@ public:
+      and can be queried by other methods.
+   */
+   virtual void enableSimplexInterface(bool doingPrimal);
+-  /// Copy across enabled stuff from one solver to another
+-  void copyEnabledSuff(OsiClpSolverInterface &rhs);
+ 
+   /*! \brief Undo setting changes made by #enableSimplexInterface */
+   virtual void disableSimplexInterface();
+-  /// Copy across enabled stuff from one solver to another
+-  void copyEnabledStuff(ClpSimplex &rhs);
+ 
+   /** Perform a pivot by substituting a colIn for colOut in the basis. 
+       The status of the leaving variable is given in statOut. Where
+@@ -972,7 +968,6 @@ public:
+   /// This loads a model from a coinModel object - returns number of errors
+   virtual int loadFromCoinModel(CoinModel &modelObject, bool keepSolution = false);
+ 
+-  using OsiSolverInterface::readMps;
+   /** Read an mps file from the given filename (defaults to Osi reader) - returns
+       number of errors (see OsiMpsReader class) */
+   virtual int readMps(const char *filename,

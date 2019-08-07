@@ -1,0 +1,75 @@
+diff --git a/Cbc/include/coin/CbcModel.hpp b/Cbc/include/coin/CbcModel.hpp
+index edf8f5b9..9dad51dd 100644
+--- a/Cbc/include/coin/CbcModel.hpp
++++ b/Cbc/include/coin/CbcModel.hpp
+@@ -2349,7 +2349,6 @@ public:
+   /// From here to end of section - code in CbcThread.cpp until class changed
+   /// Returns true if locked
+   bool isLocked() const;
+-#ifdef CBC_THREAD
+   /**
+        Locks a thread if parallel so that stuff like cut pool
+        can be updated and/or used.
+@@ -2359,12 +2358,6 @@ public:
+        Unlocks a thread if parallel to say cut pool stuff not needed
+     */
+   void unlockThread();
+-#else
+-  inline void lockThread()
+-  {
+-  }
+-  inline void unlockThread() {}
+-#endif
+   /** Set information in a child
+         -3 pass pointer to child thread info
+         -2 just stop
+@@ -2430,7 +2423,6 @@ public:
+     bool &resolved, CoinWarmStartBasis *lastws,
+     const double *lowerBefore, const double *upperBefore,
+     OsiSolverBranch *&branches);
+-  int chooseBranch(CbcNode *newNode, int numberPassesLeft, bool &resolved);
+ 
+   /** Return an empty basis object of the specified size
+ 
+@@ -2505,8 +2497,6 @@ public:
+   void synchronizeNumberBeforeTrust(int type = 0);
+   /// Zap integer information in problem (may leave object info)
+   void zapIntegerInformation(bool leaveObjects = true);
+-  /// Use cliques for pseudocost information - return nonzero if infeasible
+-  int cliquePseudoCosts(int doStatistics);
+   /// Fill in useful estimates
+   void pseudoShadow(int type);
+   /** Return pseudo costs
+@@ -3264,12 +3254,8 @@ int CbcMain1(int argc, const char *argv[], CbcModel &babSolver);
+ // two ways of calling
+ int callCbc(const char *input2, CbcModel &babSolver);
+ int callCbc(const std::string input2, CbcModel &babSolver);
+-// And when CbcMain0 already called to initialize
+-int callCbc1(const char *input2, CbcModel &babSolver);
+-int callCbc1(const std::string input2, CbcModel &babSolver);
+ // And when CbcMain0 already called to initialize (with call back) (see CbcMain1 for whereFrom)
+ int callCbc1(const char *input2, CbcModel &babSolver, int(CbcModel *currentSolver, int whereFrom));
+-int callCbc1(const std::string input2, CbcModel &babSolver, int(CbcModel *currentSolver, int whereFrom));
+ int CbcMain1(int argc, const char *argv[], CbcModel &babSolver, int(CbcModel *currentSolver, int whereFrom));
+ // For uniform setting of cut and heuristic options
+ void setCutAndHeuristicOptions(CbcModel &model);
+diff --git a/Cbc/include/coin/CbcThread.cpp b/Cbc/include/coin/CbcThread.cpp
+index a8b71eda..22a53eec 100644
+--- a/Cbc/include/coin/CbcThread.cpp
++++ b/Cbc/include/coin/CbcThread.cpp
+@@ -1989,6 +1989,15 @@ bool CbcModel::haveMultiThreadSupport() { return true; }
+ CbcBaseModel::CbcBaseModel() {}
+ 
+ bool CbcModel::haveMultiThreadSupport() { return false; }
++
++bool CbcModel::isLocked() const { return false; }
++void CbcModel::lockThread() {}
++void CbcModel::unlockThread() {}
++void CbcModel::setInfoInChild(int type, CbcThread *info) {}
++void CbcModel::moveToModel(CbcModel *baseModel, int mode) {}
++int CbcModel::splitModel(int numberModels, CbcModel **model, int numberNodes) { return 0; }
++void CbcModel::startSplitModel(int numberIterations) {}
++void CbcModel::mergeModels(int numberModel, CbcModel **model, int numberNodes) {}
+ #endif
+ 
+ /* vi: softtabstop=2 shiftwidth=2 expandtab tabstop=2
