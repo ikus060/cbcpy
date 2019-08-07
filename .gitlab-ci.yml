@@ -1,5 +1,3 @@
-image: $DOCKER_REGISTRY/pdsl/cbcpy-build:$CI_PIPELINE_IID
-
 stages:
 - prebuild
 - build
@@ -7,20 +5,9 @@ stages:
 
 variables:
   CBCURL: https://github.com/ikus060/Cbc
+  COINBREWURL: https://raw.githubusercontent.com/coin-or/coinbrew/42bc4ddd6698c7cd6a154147852522f2e061d1c7/coinbrew
 
 # TODO We should probably fix the version and not use master HERE.
-
-#
-# Create a Docker images with SWIG
-#
-prebuild-docker-image:
-  image: docker:stable
-  stage: prebuild
-  script:
-  - docker login $DOCKER_REGISTRY -u $DOCKER_USR -p $DOCKER_PWD
-  - docker build -t cbcpy-build .
-  - docker tag cbcpy-build $DOCKER_REGISTRY/pdsl/cbcpy-build:$CI_PIPELINE_IID
-  - docker push $DOCKER_REGISTRY/pdsl/cbcpy-build:$CI_PIPELINE_IID
 
 #
 # Build Stages.
@@ -28,31 +15,65 @@ prebuild-docker-image:
 
 .build:  &build
   stage: build
-  script:
+  script: 
+  # Install SWIG
+  - wget https://sourceforge.net/projects/swig/files/swig/swig-4.0.0/swig-4.0.0.tar.gz
+  - tar -zxvf swig-4.0.0.tar.gz
+  - cd swig-4.0.0
+  - ./configure && make && make install
   # Install & Compile CBC
-  - wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
+  - apt install -y gcc-$TARGET
+  - wget $COINBREWURL
   - bash ./coinbrew fetch $CBCURL --no-prompt --no-third-party
   - bash ./coinbrew build Cbc --no-prompt --disable-shared --with-pic --target=$TARGET --host=$TARGET
   # Compile python module
-  - $PYTHON setup.py build_ext --swig-opts="-c++ -I./build/include/coin/" -I./build/include/coin/ -L./build/lib/ --plat-name $TARGET
+  - python setup.py build_ext --swig-opts="-c++ -I./build/include/coin/" -I./build/include/coin/ -L./build/lib/
   # Build package
-  - $PYTHON -m pip install wheel --upgrade
-  - $PYTHON setup.py bdist_wheel
+  - python -m pip install wheel --upgrade
+  - python setup.py bdist_wheel
   artifacts:
     paths:
     - dist
 
-build_py2_linux64:
+build_py2_x86_64_linux:
   <<: *build
+  image: python:2
   variables:
     TARGET: x86_64-linux-gnu
-    PYTHON: python2
+  before_script:
+  - apt update && apt install -y gfortran
+    
+build_py34_linux64:
+  <<: *build
+  image: python:34
+  variables:
+    TARGET: x86_64-linux-gnu
+  before_script:
+  - apt update && apt install -y gfortran
 
-build_py3_linux64:
+build_py35_linux64:
   <<: *build
+  image: python:35
   variables:
     TARGET: x86_64-linux-gnu
-    PYTHON: python3
+  before_script:
+  - apt update && apt install -y gfortran
+
+build_py36_linux64:
+  <<: *build
+  image: python:36
+  variables:
+    TARGET: x86_64-linux-gnu
+  before_script:
+  - apt update && apt install -y gfortran
+    
+build_py37_linux64:
+  <<: *build
+  image: python:37
+  variables:
+    TARGET: x86_64-linux-gnu
+  before_script:
+  - apt update && apt install -y gfortran
     
 build_py2_win32:
   <<: *build
