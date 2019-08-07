@@ -25,7 +25,7 @@ variables:
   # Install & Compile CBC
   - wget $COINBREWURL
   - bash ./coinbrew fetch $CBCURL --no-prompt --no-third-party
-  - bash ./coinbrew build Cbc --no-prompt --disable-shared --with-pic --target=$TARGET --host=$TARGET
+  - bash ./coinbrew build Cbc --no-prompt --disable-shared --with-pic --host=$TARGET
   # Compile python module
   - python setup.py build_ext --swig-opts="-c++ -I./build/include/coin/" -I./build/include/coin/ -L./build/lib/
   # Build package
@@ -113,14 +113,16 @@ build_py35_win64:
 # Publish
 #
 
-publish_nexus_py2:
+publish_nexus:
   stage: publish
+  image: python:3
   script:
   - pip3 install twine --upgrade
   - twine upload dist/* -u $NEXUS_USR -p $NEXUS_PWD --repository-url $NEXUS_PYPI_URL
 
 publish_pypi:
   stage: publish
+  image: python:3
   only:
   - tags
   script:
