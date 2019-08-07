@@ -37,16 +37,6 @@ variables:
     paths:
     - dist
     
-.build_win:  &build_win
-  before_script: 
-  # Install SWIG
-  - wget https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.0.0/swigwin-4.0.0.zip
-  - unzip swigwin-4.0.0.zip
-  # Install missing stdint.h
-  - cp msvc/include/* "/vc2008express/drive_c/Program Files/Microsoft Visual Studio 9.0/VC/include/"
-  # Install mingw
-  - apt update && apt install -y g++-mingw-w64-i686 gcc-mingw-w64-i686  g++-mingw-w64-x86-64  gcc-mingw-w64-x86-64
-
 build_py2_x86_64_linux:
   <<: *build
   image: python:2
@@ -71,40 +61,6 @@ build_py37_x86_64_linux64:
   variables:
     TARGET: x86_64-linux-gnu
     
-build_py2_win32:
-  <<: *build
-  image: python:2
-  variables:
-    CXXFLAGS: -D__MINGW64__
-    LDFLAGS: -static-libgcc -static-libstdc++
-    TARGET: i686-w64-mingw32
-  allow_failure: true
-
-build_py35_win32:
-  <<: *build
-  image: python:3.5
-  variables:
-    CXXFLAGS: -D__MINGW64__
-    LDFLAGS: -static-libgcc -static-libstdc++
-    TARGET: i686-w64-mingw32
-  allow_failure: true
-    
-build_py2_win64:
-  <<: *build
-  image: python:2
-  variables:
-    LDFLAGS: -static-libgcc -static-libstdc++
-    TARGET: x86_64-w64-mingw32
-  allow_failure: true
-
-build_py35_win64:
-  <<: *build
-  image: python:3.5
-  variables:
-    LDFLAGS: -static-libgcc -static-libstdc++
-    TARGET: x86_64-w64-mingw32
-  allow_failure: true
-
 #
 # Publish
 #
