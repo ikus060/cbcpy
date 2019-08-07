@@ -1,8 +1,10 @@
-diff --git a/Cbc/include/coin/CbcModel.hpp b/Cbc/include/coin/CbcModel.hpp
-index edf8f5b9..9dad51dd 100644
---- a/Cbc/include/coin/CbcModel.hpp
-+++ b/Cbc/include/coin/CbcModel.hpp
-@@ -2349,7 +2349,6 @@ public:
+--- Cbc.orig/include/coin/CbcModel.hpp  2019-06-15 03:04:50.000000000 +0000
++++ Cbc/include/coin/CbcModel.hpp   2019-08-07 21:51:54.753624098 +0000
+@@ -2346,10 +2346,10 @@
+   {
+     return master_;
+   }
++#ifdef CBC_THREAD
    /// From here to end of section - code in CbcThread.cpp until class changed
    /// Returns true if locked
    bool isLocked() const;
@@ -10,7 +12,7 @@ index edf8f5b9..9dad51dd 100644
    /**
         Locks a thread if parallel so that stuff like cut pool
         can be updated and/or used.
-@@ -2359,12 +2358,6 @@ public:
+@@ -2359,12 +2359,6 @@
         Unlocks a thread if parallel to say cut pool stuff not needed
      */
    void unlockThread();
@@ -23,7 +25,16 @@ index edf8f5b9..9dad51dd 100644
    /** Set information in a child
          -3 pass pointer to child thread info
          -2 just stop
-@@ -2430,7 +2423,6 @@ public:
+@@ -2389,7 +2383,7 @@
+   void mergeModels(int numberModel, CbcModel **model,
+     int numberNodes);
+   //@}
+-
++#endif
+   ///@name semi-private i.e. users should not use
+   //@{
+   /// Get how many Nodes it took to solve the problem.
+@@ -2430,7 +2424,6 @@
      bool &resolved, CoinWarmStartBasis *lastws,
      const double *lowerBefore, const double *upperBefore,
      OsiSolverBranch *&branches);
@@ -31,7 +42,7 @@ index edf8f5b9..9dad51dd 100644
  
    /** Return an empty basis object of the specified size
  
-@@ -2505,8 +2497,6 @@ public:
+@@ -2505,8 +2498,6 @@
    void synchronizeNumberBeforeTrust(int type = 0);
    /// Zap integer information in problem (may leave object info)
    void zapIntegerInformation(bool leaveObjects = true);
@@ -40,7 +51,15 @@ index edf8f5b9..9dad51dd 100644
    /// Fill in useful estimates
    void pseudoShadow(int type);
    /** Return pseudo costs
-@@ -3264,12 +3254,8 @@ int CbcMain1(int argc, const char *argv[], CbcModel &babSolver);
+@@ -3251,7 +3242,6 @@
+ // So we can call from other programs
+ // Real main program
+ class OsiClpSolverInterface;
+-int CbcMain(int argc, const char *argv[], OsiClpSolverInterface &solver, CbcModel **babSolver);
+ int CbcMain(int argc, const char *argv[], CbcModel &babSolver);
+ // four ways of calling
+ int callCbc(const char *input2, OsiClpSolverInterface &solver1);
+@@ -3264,12 +3254,8 @@
  // two ways of calling
  int callCbc(const char *input2, CbcModel &babSolver);
  int callCbc(const std::string input2, CbcModel &babSolver);
@@ -52,5 +71,4 @@ index edf8f5b9..9dad51dd 100644
 -int callCbc1(const std::string input2, CbcModel &babSolver, int(CbcModel *currentSolver, int whereFrom));
  int CbcMain1(int argc, const char *argv[], CbcModel &babSolver, int(CbcModel *currentSolver, int whereFrom));
  // For uniform setting of cut and heuristic options
- void setCutAndHeuristicOptions(CbcModel &model); 
- /* vi: softtabstop=2 shiftwidth=2 expandtab tabstop=2
+ void setCutAndHeuristicOptions(CbcModel &model);

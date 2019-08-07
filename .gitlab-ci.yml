@@ -3,8 +3,6 @@ stages:
 - build
 - publish
 
-variables:
-  CBC_FILE: Cbc-2.10.3-linux-x86_64-gcc4.8.tgz
 #  CBCURL: https://github.com/ikus060/Cbc
 #  COINBREWURL: https://raw.githubusercontent.com/coin-or/coinbrew/42bc4ddd6698c7cd6a154147852522f2e061d1c7/coinbrew
 
@@ -16,6 +14,29 @@ variables:
 
 .build:  &build
   stage: build
+  script: 
+  # Install CBC
+  - mkdir Cbc && cd Cbc && pwd
+  - wget https://bintray.com/coin-or/download/download_file?file_path=$CBC_FILE -O $CBC_FILE
+  - if [[ "$CBC_FILE" == *.zip ]]; then unzip $CBC_FILE; else tar -zxvf $CBC_FILE; fi
+  - cd .. && pwd
+  - for FILE in patches/*.diff; do patch -p1 < $FILE; done
+  # Compile python module
+  - python setup.py build_ext --swig="$SWIG" --swig-opts="-c++ -I./Cbc/include/coin/" -I./Cbc/include/coin/ -L./Cbc/lib/
+  # Build package
+  - python -m pip install wheel --upgrade
+  - python setup.py bdist_wheel
+  # Test the packages
+  - pip install dist/*.whl
+  - python -m cbcpy
+  artifacts:
+    paths:
+    - dist
+
+.buildlinux:  &buildlinux
+  variables:
+    CBC_FILE: Cbc-2.10.3-linux-x86_64-gcc4.8.tgz
+    SWIG: /usr/local/bin/swig
   before_script: 
   # Install SWIG
   - wget https://sourceforge.net/projects/swig/files/swig/swig-4.0.0/swig-4.0.0.tar.gz
@@ -23,50 +44,36 @@ variables:
   - cd swig-4.0.0
   - ./configure && make && make install
   - cd ..
-  script: 
-  # Install & Compile CBC
-  #- apt update && apt install -y gfortran
-  #- wget $COINBREWURL
-  #- bash ./coinbrew fetch $CBCURL --no-prompt --no-third-party
-  #- bash ./coinbrew build Cbc --no-prompt --disable-shared --with-pic --host=$TARGET
-  - mkdir Cbc && cd Cbc && pwd
-  - wget https://bintray.com/coin-or/download/download_file?file_path=$CBC_FILE -O $CBC_FILE
-  - tar -zxvf $CBC_FILE
-  - cd .. && pwd
-  - for FILE in patches/*.diff; do patch -p1 < $FILE; done
-  # Compile python module
-  #- python setup.py build_ext --swig-opts="-c++ -I./build/include/coin/" -I./build/include/coin/ -L./build/lib/
-  - python setup.py build_ext --swig-opts="-c++ -I./Cbc/include/coin/" -I./Cbc/include/coin/ -L./Cbc/lib/
-  # Build package
-  - python -m pip install wheel --upgrade
-  - python setup.py bdist_wheel
-  artifacts:
-    paths:
-    - dist
+    
+.buildwin:  &buildwin
+  before_script: 
+  # Install SWIG
+  - wget https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.0.0/swigwin-4.0.0.zip
+  - unzip swigwin-4.0.0.zip
+  variables:
+    SWIG: swigwin-4.0.0/swig.exe
+    CBC_FILE: Cbc-2.10.3-win32-msvc9.zip
+
     
 build_py2_x86_64_linux:
-  <<: *build
+  <<: *buildlinux
   image: python:2
-  variables:
-    TARGET: x86_64-linux-gnu
     
 build_py35_x86_64_linux: 
-  <<: *build
+  <<: *buildlinux
   image: python:3.5
-  variables:
-    TARGET: x86_64-linux-gnu
 
 build_py36_x86_64_linux: 
-  <<: *build
+  <<: *buildlinux
   image: python:3.6
-  variables:
-    TARGET: x86_64-linux-gnu
     
-build_py37_x86_64_linux64: 
+build_py37_x86_64_linux: 
   <<: *build
   image: python:3.7
-  variables:
-    TARGET: x86_64-linux-gnu
+    
+build_py2_i386_win: 
+  <<: *buildwin
+  image: ikus060/docker-wine-py2-py3
     
 #
 # Publish
