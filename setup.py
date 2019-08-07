@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
+import os
 try:
     from setuptools import setup, Extension
 except ImportError:
@@ -25,9 +25,13 @@ except ImportError:
     ez_setup.use_setuptools()
     from setuptools import setup, Extension
 
+libraries = ['CbcSolver', 'Cbc', 'Cgl', 'OsiClp', 'OsiCbc', 'Osi', 'Clp', 'CoinUtils']
+if os.name == 'nt':
+    libraries = ['lib' + name for name in libraries]
+
 setup(
     name='cbcpy',
-    use_scm_version=True,
+    version="2.10.3",
     description='Coin-or CBC native interface for Python',
     author='Patrik Dufresne',
     author_email='info@patrikdufresne.com',
@@ -36,10 +40,7 @@ setup(
     ext_modules=[Extension(
         '_cbcpy',
         ['cbcpy.i'],
-        swig_opts=['-modern', '-I../include'],
-        libraries=['CbcSolver','Cbc','Cgl','OsiClp','OsiCbc','Osi','Clp', 'CoinUtils', 'bz2', 'z'])],
+        swig_opts=['-modern'],
+        libraries=libraries)],
     py_modules=['cbcpy'],
-    setup_requires=[
-        "setuptools_scm",
-    ],
 )
