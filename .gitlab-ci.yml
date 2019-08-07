@@ -34,6 +34,7 @@ stages:
     - dist
 
 .buildlinux:  &buildlinux
+  <<: *build
   variables:
     CBC_FILE: Cbc-2.10.3-linux-x86_64-gcc4.8.tgz
     SWIG: /usr/local/bin/swig
@@ -46,6 +47,7 @@ stages:
   - cd ..
     
 .buildwin:  &buildwin
+  <<: *build
   variables:
     SWIG: swigwin-4.0.0/swig.exe
     CBC_FILE: Cbc-2.10.3-win32-msvc9.zip
