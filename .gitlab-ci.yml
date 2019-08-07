@@ -29,10 +29,10 @@ variables:
   #- wget $COINBREWURL
   #- bash ./coinbrew fetch $CBCURL --no-prompt --no-third-party
   #- bash ./coinbrew build Cbc --no-prompt --disable-shared --with-pic --host=$TARGET
-  - mkdir Cbc && cd Cbc
+  - mkdir Cbc && cd Cbc && pwd
   - wget https://bintray.com/coin-or/download/download_file?file_path=$CBC_FILE -O $CBC_FILE
   - tar -zxvf $CBC_FILE
-  - cd ..
+  - cd .. && pwd
   - for FILE in patches/*.diff; do patch -p1 < $FILE; done
   # Compile python module
   #- python setup.py build_ext --swig-opts="-c++ -I./build/include/coin/" -I./build/include/coin/ -L./build/lib/
