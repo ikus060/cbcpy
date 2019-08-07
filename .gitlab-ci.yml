@@ -33,7 +33,7 @@ variables:
   - wget https://bintray.com/coin-or/download/download_file?file_path=$CBC_FILE -O $CBC_FILE
   - tar -zxvf $CBC_FILE
   - cd ..
-  - for FILE in patches/*.diff; do patch -p0 < $FILE; done
+  - for FILE in patches/*.diff; do patch -p1 < $FILE; done
   # Compile python module
   #- python setup.py build_ext --swig-opts="-c++ -I./build/include/coin/" -I./build/include/coin/ -L./build/lib/
   - python setup.py build_ext --swig-opts="-c++ -I./Cbc/include/coin/" -I./Cbc/include/coin/ -L./Cbc/lib/
