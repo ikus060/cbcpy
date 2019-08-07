@@ -22,7 +22,6 @@ variables:
   - cd swig-4.0.0
   - ./configure && make && make install
   # Install & Compile CBC
-  - apt install -y gcc-$TARGET
   - wget $COINBREWURL
   - bash ./coinbrew fetch $CBCURL --no-prompt --no-third-party
   - bash ./coinbrew build Cbc --no-prompt --disable-shared --with-pic --target=$TARGET --host=$TARGET
@@ -43,17 +42,9 @@ build_py2_x86_64_linux:
   before_script:
   - apt update && apt install -y gfortran
     
-build_py34_linux64:
-  <<: *build
-  image: python:34
-  variables:
-    TARGET: x86_64-linux-gnu
-  before_script:
-  - apt update && apt install -y gfortran
-
 build_py35_linux64:
   <<: *build
-  image: python:35
+  image: python:3.5
   variables:
     TARGET: x86_64-linux-gnu
   before_script:
@@ -61,7 +52,7 @@ build_py35_linux64:
 
 build_py36_linux64:
   <<: *build
-  image: python:36
+  image: python:3.6
   variables:
     TARGET: x86_64-linux-gnu
   before_script:
@@ -69,7 +60,7 @@ build_py36_linux64:
     
 build_py37_linux64:
   <<: *build
-  image: python:37
+  image: python:3.7
   variables:
     TARGET: x86_64-linux-gnu
   before_script:
@@ -81,18 +72,18 @@ build_py2_win32:
     CXXFLAGS: -D__MINGW64__
     LDFLAGS: -static-libgcc -static-libstdc++
     TARGET: i686-w64-mingw32
-    PYTHON: python2
+    PYTHON: python:2
   before_script:
   - apt update && apt install -y gcc-mingw-w64 mingw-w64 g++-multilib
   allow_failure: true
 
-build_py3_win32:
+build_py35_win32:
   <<: *build
   variables:
     CXXFLAGS: -D__MINGW64__
     LDFLAGS: -static-libgcc -static-libstdc++
     TARGET: i686-w64-mingw32
-    PYTHON: python3
+    PYTHON: python:3.5
   before_script:
   - apt update && apt install -y gcc-mingw-w64 mingw-w64 g++-multilib
   allow_failure: true
@@ -102,17 +93,17 @@ build_py2_win64:
   variables:
     LDFLAGS: -static-libgcc -static-libstdc++
     TARGET: x86_64-w64-mingw32
-    PYTHON: python2
+    PYTHON: python:2
   before_script:
   - apt update && apt install -y gcc-mingw-w64 mingw-w64 g++-multilib
   allow_failure: true
 
-build_py3_win64:
+build_py35_win64:
   <<: *build
   variables:
     LDFLAGS: -static-libgcc -static-libstdc++
     TARGET: x86_64-w64-mingw32
-    PYTHON: python3
+    PYTHON: python:3.5
   before_script:
   - apt update && apt install -y gcc-mingw-w64 mingw-w64 g++-multilib
   allow_failure: true
