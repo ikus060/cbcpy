@@ -22,10 +22,8 @@ variables:
   # Compile python module
   - python setup.py build_ext --swig="$SWIG" --swig-opts="-doxygen -c++ -I./Cbc/include/coin/" -I./Cbc/include/coin/ -L./Cbc/lib/
   # Build package
-  - python -m pip install wheel auditwheel --upgrade
+  - python -m pip install wheel --upgrade
   - python setup.py bdist_wheel
-  # Create a manylinux packages
-  - auditwheel repair dist/*.whl
   # Test the packages
   - pip install dist/*.whl
   - LD_LIBRARY_PATH=./Cbc/lib/ python -m cbcpy
@@ -84,8 +82,10 @@ publish_nexus:
   stage: publish
   image: python:3
   script:
-  - pip install twine --upgrade
+  - pip install twine auditwheel --upgrade
+    # Create a manylinux packages
   - python setup.py sdist
+  - auditwheel repair dist/*.whl
   - twine upload dist/* -u $NEXUS_USR -p $NEXUS_PWD --repository-url $NEXUS_PYPI_URL
 
 publish_pypi:
