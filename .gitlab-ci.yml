@@ -20,7 +20,7 @@ variables:
   - cd .. && pwd
   - for FILE in patches/*.diff; do patch -p1 < $FILE; done
   # Compile python module
-  - python setup.py build_ext --swig="$SWIG" --swig-opts="-c++ -I./Cbc/include/coin/" -I./Cbc/include/coin/ -L./Cbc/lib/
+  - python setup.py build_ext --swig="$SWIG" --swig-opts="-doxygen -c++ -I./Cbc/include/coin/" -I./Cbc/include/coin/ -L./Cbc/lib/
   # Build package
   - python -m pip install wheel --upgrade
   - python setup.py bdist_wheel
