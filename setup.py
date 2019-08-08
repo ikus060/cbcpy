@@ -31,7 +31,7 @@ if os.name == 'nt':
 
 setup(
     name='cbcpy',
-    version="2.10.3",
+    version="2.10.3-1"
     description='Coin-or CBC native interface for Python',
     author='Patrik Dufresne',
     author_email='info@patrikdufresne.com',

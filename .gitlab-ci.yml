@@ -15,7 +15,7 @@ variables:
   script: 
   # Install CBC from bintray
   - mkdir Cbc && cd Cbc && pwd
-  - wget https://bintray.com/coin-or/download/download_file?file_path=$CBC_FILE -O $CBC_FILE
+  - wget --no-check-certificate https://bintray.com/coin-or/download/download_file?file_path=$CBC_FILE -O $CBC_FILE
   - if [[ "$CBC_FILE" == *.zip ]]; then unzip $CBC_FILE; else tar -zxvf $CBC_FILE; fi
   - cd .. && pwd
   - for FILE in patches/*.diff; do patch -p1 < $FILE; done
