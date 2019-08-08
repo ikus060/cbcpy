@@ -3,10 +3,8 @@ stages:
 - build
 - publish
 
-#  CBCURL: https://github.com/ikus060/Cbc
-#  COINBREWURL: https://raw.githubusercontent.com/coin-or/coinbrew/42bc4ddd6698c7cd6a154147852522f2e061d1c7/coinbrew
-
-# TODO We should probably fix the version and not use master HERE.
+variables:
+  CBC_VERSION: 2.10.3
 
 #
 # Build Stages.
@@ -15,7 +13,7 @@ stages:
 .build:  &build
   stage: build
   script: 
-  # Install CBC
+  # Install CBC from bintray
   - mkdir Cbc && cd Cbc && pwd
   - wget https://bintray.com/coin-or/download/download_file?file_path=$CBC_FILE -O $CBC_FILE
   - if [[ "$CBC_FILE" == *.zip ]]; then unzip $CBC_FILE; else tar -zxvf $CBC_FILE; fi
@@ -36,7 +34,7 @@ stages:
 .buildlinux:  &buildlinux
   <<: *build
   variables:
-    CBC_FILE: Cbc-2.10.3-linux-x86_64-gcc4.8.tgz
+    CBC_FILE: Cbc-$CBC_VERSION-linux-x86_64-gcc4.8.tgz
     SWIG: /usr/local/bin/swig
   before_script: 
   # Install SWIG
@@ -50,32 +48,31 @@ stages:
   <<: *build
   variables:
     SWIG: swigwin-4.0.0/swig.exe
-    CBC_FILE: Cbc-2.10.3-win32-msvc9.zip
+    CBC_FILE: Cbc-$CBC_VERSION-win32-msvc9.zip
   before_script: 
   # Install SWIG
   - wget https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.0.0/swigwin-4.0.0.zip
   - unzip swigwin-4.0.0.zip
     
-build_py2_x86_64_linux:
+build_py27_x86_64_linux:
   <<: *buildlinux
-  image: python:2
+  image: ikus060/docker-python:2.7-gcc4.8
     
 build_py35_x86_64_linux: 
   <<: *buildlinux
-  image: python:3.5
+  image: ikus060/docker-python:3.5-gcc4.8
 
 build_py36_x86_64_linux: 
   <<: *buildlinux
-  image: python:3.6
+  image: ikus060/docker-python:3.6-gcc4.8
     
 build_py37_x86_64_linux: 
   <<: *buildlinux
-  image: python:3.7
+  image: ikus060/docker-python:3.7-gcc4.8
     
-# TODO ikus060/docker-wine-py2-py3 should be replaced to use a specific python version.
-build_py2_win32_msvc9: 
+build_py27_win32_msvc9: 
   <<: *buildwin
-  image: ikus060/docker-wine-py2-py3
+  image: ikus060/docker-python:2.7-vs2008express
   
 #
 # Publish
