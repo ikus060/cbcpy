@@ -22,8 +22,10 @@ variables:
   # Compile python module
   - python setup.py build_ext --swig="$SWIG" --swig-opts="-doxygen -c++ -I./Cbc/include/coin/" -I./Cbc/include/coin/ -L./Cbc/lib/
   # Build package
-  - python -m pip install wheel --upgrade
+  - python -m pip install wheel auditwheel --upgrade
   - python setup.py bdist_wheel
+  # Create a manylinux packages
+  - auditwheel repair dist/*.whl
   # Test the packages
   - pip install dist/*.whl
   - LD_LIBRARY_PATH=./Cbc/lib/ python -m cbcpy
