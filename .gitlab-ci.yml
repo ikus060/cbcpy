@@ -85,7 +85,7 @@ publish_nexus:
   - pip install twine auditwheel --upgrade
     # Create a manylinux packages
   - python setup.py sdist
-  - auditwheel repair dist/*.whl
+  - for FILE in dist/*.whl; do auditwheel repair $FILE; done
   - twine upload dist/* -u $NEXUS_USR -p $NEXUS_PWD --repository-url $NEXUS_PYPI_URL
 
 publish_pypi:
@@ -96,5 +96,6 @@ publish_pypi:
   script:
   - pip3 install twine --upgrade
   - python setup.py sdist
+  - for FILE in dist/*.whl; do auditwheel repair $FILE; done
   - twine upload dist/* -u $PYPI_USR -p $PYPI_PWD
   
