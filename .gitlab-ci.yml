@@ -82,7 +82,7 @@ publish_nexus:
   stage: publish
   image: python:3
   script:
-  - apt update && apt ionstall -y patchelf
+  - apt update && apt install -y patchelf
   - pip install twine auditwheel --upgrade
   - python setup.py sdist
   - for FILE in dist/*.whl; do auditwheel repair $FILE; done
@@ -94,7 +94,7 @@ publish_pypi:
   only:
   - tags
   script:
-  - apt update && apt ionstall -y patchelf
+  - apt update && apt install -y patchelf
   - pip3 install twine --upgrade
   - python setup.py sdist
   - for FILE in dist/*.whl; do auditwheel repair $FILE; done
