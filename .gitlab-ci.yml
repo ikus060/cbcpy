@@ -75,15 +75,15 @@ build_py27_win32_msvc9:
   image: ikus060/docker-python:2.7-vc2008express
   
 #
-# Publish
+# Publish manylinux packages
 #
 
 publish_nexus:
   stage: publish
   image: python:3
   script:
+  - apt update && apt ionstall -y patchelf
   - pip install twine auditwheel --upgrade
-    # Create a manylinux packages
   - python setup.py sdist
   - for FILE in dist/*.whl; do auditwheel repair $FILE; done
   - twine upload dist/* -u $NEXUS_USR -p $NEXUS_PWD --repository-url $NEXUS_PYPI_URL
@@ -94,6 +94,7 @@ publish_pypi:
   only:
   - tags
   script:
+  - apt update && apt ionstall -y patchelf
   - pip3 install twine --upgrade
   - python setup.py sdist
   - for FILE in dist/*.whl; do auditwheel repair $FILE; done
