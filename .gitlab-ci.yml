@@ -35,10 +35,9 @@ variables:
   image: quay.io/pypa/manylinux2010_x86_64
   stage: build
   before_script:
-  # Insall dependencies
-  - yum install -y wget pcre-devel
   # Install SWIG
-  - wget --no-check-certificate https://sourceforge.net/projects/swig/files/swig/swig-4.0.0/swig-4.0.0.tar.gz
+  - yum install -y wget pcre-devel bzip2-devel
+  - wget https://sourceforge.net/projects/swig/files/swig/swig-4.0.0/swig-4.0.0.tar.gz
   - tar -zxvf swig-4.0.0.tar.gz
   - cd swig-4.0.0
   - ./configure && make && make install
@@ -50,10 +49,7 @@ variables:
 
 .buildwin:  &buildwin
   <<: *build
-  variables:
-    SWIG: swigwin-4.0.0/swig.exe
-    CBC_FILE: Cbc-$CBC_VERSION-win32-msvc9.zip
-  before_script: 
+  before_script:
   # Install SWIG
   - wget https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.0.0/swigwin-4.0.0.zip
   - unzip swigwin-4.0.0.zip
@@ -98,6 +94,8 @@ build_py27_win32_msvc9:
   <<: *buildwin
   image: ikus060/docker-python:2.7-vc2008express
   variables:
+    SWIG: swigwin-4.0.0/swig.exe
+    CBC_FILE: Cbc-$CBC_VERSION-win32-msvc9.zip
     PYTHON_ENV: /usr/
   
 #
