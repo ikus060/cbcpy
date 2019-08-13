@@ -1,3 +1,5 @@
+image: quay.io/pypa/manylinux2010_x86_64
+
 stages:
 - prebuild
 - build
@@ -32,21 +34,6 @@ variables:
 
 .buildlinux:  &buildlinux
   <<: *build
-  image: quay.io/pypa/manylinux2010_x86_64
-  stage: build
-  before_script:
-  # Install SWIG
-  - yum install -y wget pcre-devel bzip2-devel
-  - ln -s `find /lib64/ -type f -name "libbz2.so.1*"` /lib64/libbz2.so.1.0
-  - wget https://sourceforge.net/projects/swig/files/swig/swig-4.0.0/swig-4.0.0.tar.gz
-  - tar -zxvf swig-4.0.0.tar.gz
-  - cd swig-4.0.0
-  - ./configure && make && make install
-  - cd ..
-
-.buildlinux_vars: &buildlinux_vars
-  CBC_FILE: Cbc-$CBC_VERSION-linux-x86_64-gcc4.8.tgz
-  SWIG: /usr/local/bin/swig
 
 .buildwin:  &buildwin
   <<: *build
@@ -56,7 +43,7 @@ variables:
   - unzip swigwin-4.0.0.zip
 
 #
-# Build CBC
+# Build CBC & SWIG
 #
 build_cbc_x86_64_linux:
   stage: prebuild
@@ -68,9 +55,17 @@ build_cbc_x86_64_linux:
   - tar -zxvf Cbc-$CBC_VERSION.tgz --strip 1
   - ./configure
   - make
+  - cd ..
+    # Install SWIG
+  - ln -s `find /lib64/ -type f -name "libbz2.so.1*"` /lib64/libbz2.so.1.0
+  - wget https://sourceforge.net/projects/swig/files/swig/swig-4.0.0/swig-4.0.0.tar.gz
+  - tar -zxvf swig-4.0.0.tar.gz
+  - cd swig-4.0.0
+  - ./configure && make && make install
   artifacts:
     paths:
     - Cbc
+    - swig-4.0.0
 
 #
 # Build python
@@ -78,37 +73,31 @@ build_cbc_x86_64_linux:
 build_cp27-cp27m_x86_64_linux:
   <<: *buildlinux
   variables:
-    <<: *buildlinux_vars
     PYTHON_ENV: /opt/python/cp27-cp27m
     
 build_cp27-cp27mu_x86_64_linux: 
   <<: *buildlinux
   variables:
-    <<: *buildlinux_vars
     PYTHON_ENV: /opt/python/cp27-cp27mu
     
 build_cp34-cp34m_x86_64_linux: 
   <<: *buildlinux
   variables:
-    <<: *buildlinux_vars
     PYTHON_ENV: /opt/python/cp34-cp34m
     
 build_cp35-cp35m_x86_64_linux: 
   <<: *buildlinux
   variables:
-    <<: *buildlinux_vars
     PYTHON_ENV: /opt/python/cp35-cp35m
 
 build_cp36-cp36m_x86_64_linux: 
   <<: *buildlinux
   variables:
-    <<: *buildlinux_vars
     PYTHON_ENV: /opt/python/cp36-cp36m
     
 build_cp37-cp37m_x86_64_linux: 
   <<: *buildlinux
   variables:
-    <<: *buildlinux_vars
     PYTHON_ENV: /opt/python/cp37-cp37m
 
 build_py27_win32_msvc9: 
