@@ -27,7 +27,7 @@ variables:
   - $PYTHON_ENV/bin/python setup.py bdist_wheel
   # Test the packages
   - $PYTHON_ENV/bin/pip install dist/*.whl
-  - LD_LIBRARY_PATH=./Cbc/lib/ $PYTHON_ENV/bin/python -m cbcpy
+  - $PYTHON_ENV/bin/python -m cbcpy
   artifacts:
     paths:
     - dist
@@ -38,8 +38,7 @@ variables:
   - build_cbc_x86_64_linux
   before_script:
   # Install SWIG
-  - yum install -y wget pcre-devel bzip2-devel
-  - ln -s `find /lib64/ -type f -name "libbz2.so.1*"` /lib64/libbz2.so.1.0
+  - yum install -y wget pcre-devel
   - wget https://sourceforge.net/projects/swig/files/swig/swig-4.0.0/swig-4.0.0.tar.gz
   - tar -zxvf swig-4.0.0.tar.gz
   - cd swig-4.0.0
@@ -68,7 +67,7 @@ build_cbc_x86_64_linux:
   stage: prebuild
   image: quay.io/pypa/manylinux2010_x86_64
   script:
-  - yum install -y wget pcre-devel bzip2-devel
+  - yum install -y wget
   - mkdir Cbc && cd Cbc
   - wget https://www.coin-or.org/download/source/Cbc/Cbc-$CBC_VERSION.tgz
   - tar -zxvf Cbc-$CBC_VERSION.tgz --strip 1
