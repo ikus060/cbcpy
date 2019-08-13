@@ -14,14 +14,9 @@ variables:
 .build:  &build
   stage: build
   script: 
-  # Install CBC from bintray
-  #- mkdir Cbc && cd Cbc && pwd
-  #- wget https://bintray.com/coin-or/download/download_file?file_path=$CBC_FILE -O $CBC_FILE
-  #- if [[ "$CBC_FILE" == *.zip ]]; then unzip $CBC_FILE; else tar -zxvf $CBC_FILE; fi
-  #- cd .. && pwd
   - for FILE in patches/*.diff; do patch -p1 < $FILE; done
   # Compile python module
-  - $PYTHON_ENV/bin/python setup.py build_ext --swig="${SWIG:-swig-4.0.0/swig}" --swig-opts="-doxygen -c++ -I./Cbc/include/coin/" -I./Cbc/include/coin/ -L./Cbc/lib/
+  - $PYTHON_ENV/bin/python setup.py build_ext --swig="${SWIG:-swig-4.0.0/swig}"
   # Build package
   - $PYTHON_ENV/bin/python setup.py bdist_wheel
   # Convert to manylinux
@@ -45,7 +40,6 @@ variables:
   - cd swig-4.0.0
   - ./configure && make && make install
   - cd .. && pwd
-  
 
 .buildwin:  &buildwin
   <<: *build
@@ -115,11 +109,11 @@ build_cp37-cp37m_x86_64_linux:
 
 build_py27_win32_msvc9: 
   <<: *buildwin
-  image: ikus060/docker-python:2.7-vc2008express
+  image: ikus060/manywindows
   allow_failure: true
   variables:
     SWIG: swigwin-4.0.0/swig.exe
-    PYTHON_ENV: /usr/
+    PYTHON_ENV: /opt/python/msvc9_win32
   
 #
 # Publish manylinux packages

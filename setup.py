@@ -39,6 +39,8 @@ if os.name == 'nt':
 else:
     extra_objects = ['%s/lib%s.a' % (library_dirs[0], l) for l in libraries]
     libraries = []
+swig_opts=['-c++','-doxygen']
+swig_opts.extend(['-I%s' % i for i in include_dirs])
 
 setup(
     name='cbcpy',
@@ -51,7 +53,7 @@ setup(
     ext_modules=[Extension(
         '_cbcpy',
         ['cbcpy.i'],
-        swig_opts=['-c++ -doxygen'],
+        swig_opts=swig_opts,
         include_dirs=include_dirs,
         library_dirs=library_dirs,
         libraries=libraries,
