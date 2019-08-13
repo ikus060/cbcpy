@@ -36,7 +36,14 @@ variables:
   <<: *build
   dependencies:
   - build_cbc_x86_64_linux
-  
+  before_script:
+  # Install SWIG
+  - yum install -y wget pcre-devel bzip2-devel
+  - ln -s `find /lib64/ -type f -name "libbz2.so.1*"` /lib64/libbz2.so.1.0
+  - wget https://sourceforge.net/projects/swig/files/swig/swig-4.0.0/swig-4.0.0.tar.gz
+  - tar -zxvf swig-4.0.0.tar.gz
+  - cd swig-4.0.0
+  - ./configure && make && make install
 
 .buildwin:  &buildwin
   <<: *build
@@ -67,16 +74,9 @@ build_cbc_x86_64_linux:
   - make
   - make install
   - cd ..
-    # Install SWIG
-  - ln -s `find /lib64/ -type f -name "libbz2.so.1*"` /lib64/libbz2.so.1.0
-  - wget https://sourceforge.net/projects/swig/files/swig/swig-4.0.0/swig-4.0.0.tar.gz
-  - tar -zxvf swig-4.0.0.tar.gz
-  - cd swig-4.0.0
-  - ./configure && make && make install
   artifacts:
     paths:
     - Cbc
-    - swig-4.0.0
 
 #
 # Build python
