@@ -34,6 +34,7 @@ include_dirs = [os.path.join(CBC_DIR, 'include/coin')]
 library_dirs = [os.path.join(CBC_DIR, 'lib')]
 libraries = ['CbcSolver', 'Cbc', 'Cgl', 'OsiClp', 'OsiCbc', 'Osi', 'Clp', 'CoinUtils']
 if os.name == 'nt':
+    extra_objects = []
     libraries = ['lib' + name for name in libraries]
 else:
     extra_objects = ['%s/lib%s.a' % (library_dirs[0], l) for l in libraries]
