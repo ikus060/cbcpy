@@ -44,6 +44,8 @@ variables:
   - tar -zxvf swig-4.0.0.tar.gz
   - cd swig-4.0.0
   - ./configure && make && make install
+  - cd .. && pwd
+  
 
 .buildwin:  &buildwin
   <<: *build
@@ -73,7 +75,6 @@ build_cbc_x86_64_linux:
   - ./configure
   - make
   - make install
-  - cd ..
   artifacts:
     paths:
     - Cbc
