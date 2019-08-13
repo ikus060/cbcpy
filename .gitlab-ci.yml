@@ -28,7 +28,7 @@ variables:
   # Convert to manylinux
   - auditwheel repair dist/*.whl
   # Test the packages
-  - $PYTHON_ENV/bin/pip install dist/*.whl
+  - $PYTHON_ENV/bin/pip install wheelhouse/*.whl
   - $PYTHON_ENV/bin/python -m cbcpy
   artifacts:
     paths:
