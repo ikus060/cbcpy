@@ -72,7 +72,7 @@ build_cbc_x86_64_linux:
   - mkdir Cbc && cd Cbc
   - wget https://www.coin-or.org/download/source/Cbc/Cbc-$CBC_VERSION.tgz
   - tar -zxvf Cbc-$CBC_VERSION.tgz --strip 1
-  - ./configure
+  - ./configure --disable-shared -with-pic
   - make
   - make install
   artifacts:
