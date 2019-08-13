@@ -34,13 +34,23 @@ variables:
 
 .buildlinux:  &buildlinux
   <<: *build
+  dependencies:
+  - build_cbc_x86_64_linux
+  
 
 .buildwin:  &buildwin
   <<: *build
   before_script:
+  # Install CBC
+  - export CBC_FILE=Cbc-$CBC_VERSION-win32-msvc9.zip
+  - mkdir Cbc && cd Cbc
+  - wget https://bintray.com/coin-or/download/download_file?file_path=$CBC_FILE -O $CBC_FILE
+  - unzip $CBC_FILE
+  - cd .. && pwd
   # Install SWIG
   - wget https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.0.0/swigwin-4.0.0.zip
   - unzip swigwin-4.0.0.zip
+  dependencies: []
 
 #
 # Build CBC & SWIG
