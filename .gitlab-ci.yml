@@ -20,7 +20,7 @@ variables:
   # Build package
   - $PYTHON_ENV/bin/python setup.py bdist_wheel
   # Convert to manylinux
-  - auditwheel repair dist/*.whl
+  - if [[ "$CI_JOB_NAME" == *linux* ]]; then auditwheel repair dist/*.whl; else mv dist/*.whl wheelhouse; fi
   # Test the packages
   - $PYTHON_ENV/bin/pip install wheelhouse/*.whl
   - $PYTHON_ENV/bin/python -m cbcpy
