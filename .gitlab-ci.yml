@@ -76,7 +76,8 @@ build_cbc_x86_64_linux:
   - make install
   artifacts:
     paths:
-    - Cbc
+    - Cbc/lib
+    - Cbc/include
 
 #
 # Build python
