@@ -62,6 +62,7 @@ build_cbc_x86_64_linux:
   stage: prebuild
   image: quay.io/pypa/manylinux2010_x86_64
   script:
+  - yum install -y wget pcre-devel bzip2-devel
   - mkdir Cbc && cd Cbc
   - wget https://www.coin-or.org/download/source/Cbc/Cbc-$CBC_VERSION.tgz
   - tar -zxvf Cbc-$CBC_VERSION.tgz --strip 1
