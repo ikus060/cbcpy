@@ -23,7 +23,6 @@ variables:
   # Compile python module
   - $PYTHON_ENV/bin/python setup.py build_ext --swig="${SWIG:-swig-4.0.0/swig}" --swig-opts="-doxygen -c++ -I./Cbc/include/coin/" -I./Cbc/include/coin/ -L./Cbc/lib/
   # Build package
-  - $PYTHON_ENV/bin/pip install wheel --upgrade
   - $PYTHON_ENV/bin/python setup.py bdist_wheel
   # Convert to manylinux
   - auditwheel repair dist/*.whl
