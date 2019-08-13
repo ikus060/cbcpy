@@ -60,6 +60,7 @@ variables:
 #
 build_cbc_x86_64_linux:
   stage: prebuild
+  image: quay.io/pypa/manylinux2010_x86_64
   script:
   - mkdir Cbc && cd Cbc
   - wget https://www.coin-or.org/download/source/Cbc/Cbc-$CBC_VERSION.tgz
