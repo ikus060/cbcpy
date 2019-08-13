@@ -21,7 +21,7 @@ variables:
   #- cd .. && pwd
   - for FILE in patches/*.diff; do patch -p1 < $FILE; done
   # Compile python module
-  - $PYTHON_ENV/bin/python setup.py build_ext --swig="$SWIG" --swig-opts="-doxygen -c++ -I./Cbc/include/coin/" -I./Cbc/include/coin/ -L./Cbc/lib/
+  - $PYTHON_ENV/bin/python setup.py build_ext --swig="${SWIG:-swig-4.0.0/swig}" --swig-opts="-doxygen -c++ -I./Cbc/include/coin/" -I./Cbc/include/coin/ -L./Cbc/lib/
   # Build package
   - $PYTHON_ENV/bin/pip install wheel --upgrade
   - $PYTHON_ENV/bin/python setup.py bdist_wheel
@@ -116,7 +116,6 @@ build_py27_win32_msvc9:
   image: ikus060/docker-python:2.7-vc2008express
   variables:
     SWIG: swigwin-4.0.0/swig.exe
-    CBC_FILE: Cbc-$CBC_VERSION-win32-msvc9.zip
     PYTHON_ENV: /usr/
   
 #
