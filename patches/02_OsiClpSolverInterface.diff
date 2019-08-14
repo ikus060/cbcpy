@@ -1,5 +1,5 @@
---- a/Cbc/include/coin/OsiClpSolverInterface.hpp 2019-06-15 02:56:22.000000000 +0000
-+++ b/Cbc/include/coin/OsiClpSolverInterface.hpp  2019-08-07 21:53:40.886632449 +0000
+--- a/Cbc/include/coin/OsiClpSolverInterface.hpp
++++ b/Cbc/include/coin/OsiClpSolverInterface.hpp
 @@ -174,13 +174,9 @@
       and can be queried by other methods.
    */

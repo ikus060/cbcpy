@@ -1,5 +1,5 @@
---- a/Cbc/include/coin/CbcModel.hpp  2019-06-15 03:04:50.000000000 +0000
-+++ b/Cbc/include/coin/CbcModel.hpp   2019-08-07 21:51:54.753624098 +0000
+--- a/Cbc/include/coin/CbcModel.hpp
++++ b/Cbc/include/coin/CbcModel.hpp
 @@ -2346,10 +2346,10 @@
    {
      return master_;

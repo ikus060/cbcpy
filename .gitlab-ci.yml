@@ -14,7 +14,6 @@ variables:
 .build:  &build
   stage: build
   script: 
-  - for FILE in patches/*.diff; do patch -p1 < $FILE; done
   # Compile python module
   - $PYTHON_ENV/bin/python setup.py build_ext --swig="${SWIG:-swig-4.0.0/swig}"
   # Build package
