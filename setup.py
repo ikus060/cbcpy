@@ -27,11 +27,11 @@ except ImportError:
     from setuptools.command.build_ext import build_ext as _build_ext
 
 # Configure the SWIG build
-CBC_DIR = os.environ.get('CBC_DIR', './Cbc')
+CBC_DIR = os.environ.get('CBC_DIR', os.path.join('.', 'Cbc'))
 if not os.path.isdir(CBC_DIR):
   print('CBC_DIR environment variable must be a directory: ' + CBC_DIR)
 
-include_dirs = [os.path.join(CBC_DIR, 'include/coin')]
+include_dirs = [os.path.join(CBC_DIR, 'include','coin')]
 library_dirs = [os.path.join(CBC_DIR, 'lib')]
 libraries = ['CbcSolver', 'Cbc', 'Cgl', 'OsiClp', 'OsiCbc', 'Osi', 'Clp', 'CoinUtils']
 if os.name == 'nt':
