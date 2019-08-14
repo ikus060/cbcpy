@@ -19,8 +19,9 @@ variables:
   - $PYTHON_ENV/bin/python setup.py build_ext --swig="${SWIG:-swig-4.0.0/swig}"
   # Build package
   - $PYTHON_ENV/bin/python setup.py bdist_wheel
-  # Convert to manylinux
-  - if [[ "$CI_JOB_NAME" == *linux* ]]; then auditwheel repair dist/*.whl; else mv dist/*.whl wheelhouse; fi
+  # Convert to manylinux if required
+  - mkdir wheelhouse
+  - if [[ "$CI_JOB_NAME" == *linux* ]]; then auditwheel repair dist/*.whl; else mv dist/*.whl wheelhouse/; fi
   # Test the packages
   - $PYTHON_ENV/bin/pip install wheelhouse/*.whl
   - $PYTHON_ENV/bin/python -m cbcpy
@@ -113,7 +114,7 @@ build_py27_win32_msvc9:
   allow_failure: true
   variables:
     SWIG: swigwin-4.0.0/swig.exe
-    PYTHON_ENV: /opt/python/msvc9_win32
+    PYTHON_ENV: /opt/python/cp27-cp27m-win32
   
 #
 # Publish manylinux packages
