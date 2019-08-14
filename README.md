@@ -1,3 +1,5 @@
+[![Build Status](https://git.patrikdufresne.com/pdsl/cbcpy/badges/master/pipeline.svg)](https://git.patrikdufresne.com/pdsl/cbcpy/pipelines)
+
 # cbcpy
 
 Native Python interface for Coin-or Branch and Cut Solver ([Cbc](https://github.com/coin-or/Cbc)).
