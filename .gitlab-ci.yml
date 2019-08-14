@@ -1,3 +1,5 @@
+image: quay.io/pypa/manylinux2010_x86_64
+
 stages:
 - prebuild
 - build
@@ -7,75 +9,115 @@ variables:
   CBC_VERSION: 2.10.3
 
 #
-# Build Stages.
+# Build Stages
 #
-
 .build:  &build
   stage: build
   script: 
-  # Install CBC from bintray
-  - mkdir Cbc && cd Cbc && pwd
-  - wget --no-check-certificate https://bintray.com/coin-or/download/download_file?file_path=$CBC_FILE -O $CBC_FILE
-  - if [[ "$CBC_FILE" == *.zip ]]; then unzip $CBC_FILE; else tar -zxvf $CBC_FILE; fi
-  - cd .. && pwd
   - for FILE in patches/*.diff; do patch -p1 < $FILE; done
   # Compile python module
-  - python setup.py build_ext --swig="$SWIG" --swig-opts="-doxygen -c++ -I./Cbc/include/coin/" -I./Cbc/include/coin/ -L./Cbc/lib/
+  - $PYTHON_ENV/bin/python setup.py build_ext --swig="${SWIG:-swig-4.0.0/swig}"
   # Build package
-  - python -m pip install wheel --upgrade
-  - python setup.py bdist_wheel
+  - $PYTHON_ENV/bin/python setup.py bdist_wheel
+  # Convert to manylinux if required
+  - mkdir wheelhouse
+  - if [[ "$CI_JOB_NAME" == *linux* ]]; then auditwheel repair dist/*.whl; else mv dist/*.whl wheelhouse/; fi
   # Test the packages
-  - pip install dist/*.whl
-  - LD_LIBRARY_PATH=./Cbc/lib/ python -m cbcpy
+  - $PYTHON_ENV/bin/pip install wheelhouse/*.whl
+  - $PYTHON_ENV/bin/python -m cbcpy
   artifacts:
     paths:
-    - dist
+    - wheelhouse
 
 .buildlinux:  &buildlinux
   <<: *build
-  variables:
-    CBC_FILE: Cbc-$CBC_VERSION-linux-x86_64-gcc4.8.tgz
-    SWIG: /usr/local/bin/swig
-  before_script: 
+  dependencies:
+  - build_cbc_x86_64_linux
+  before_script:
   # Install SWIG
-  - wget --no-check-certificate https://sourceforge.net/projects/swig/files/swig/swig-4.0.0/swig-4.0.0.tar.gz
+  - yum install -y wget pcre-devel
+  - wget https://sourceforge.net/projects/swig/files/swig/swig-4.0.0/swig-4.0.0.tar.gz
   - tar -zxvf swig-4.0.0.tar.gz
   - cd swig-4.0.0
   - ./configure && make && make install
-  - cd ..
-    
+  - cd .. && pwd
+
 .buildwin:  &buildwin
   <<: *build
-  variables:
-    SWIG: swigwin-4.0.0/swig.exe
-    CBC_FILE: Cbc-$CBC_VERSION-win32-msvc9.zip
-  before_script: 
+  before_script:
+  # Install CBC
+  - export CBC_FILE=Cbc-$CBC_VERSION-win32-msvc9.zip
+  - mkdir Cbc && cd Cbc
+  - wget https://bintray.com/coin-or/download/download_file?file_path=$CBC_FILE -O $CBC_FILE
+  - unzip $CBC_FILE
+  - cd .. && pwd
   # Install SWIG
   - wget https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.0.0/swigwin-4.0.0.zip
   - unzip swigwin-4.0.0.zip
-    
-build_py27_x86_64_linux:
-  <<: *buildlinux
-  image: ikus060/docker-python:2.7-gcc4.8
-    
-build_py35_x86_64_linux: 
-  <<: *buildlinux
-  image: ikus060/docker-python:3.5-gcc4.8
+  dependencies: []
 
-build_py36_x86_64_linux: 
+#
+# Build CBC & SWIG
+#
+build_cbc_x86_64_linux:
+  stage: prebuild
+  image: quay.io/pypa/manylinux2010_x86_64
+  script:
+  - yum install -y wget
+  - mkdir Cbc && cd Cbc
+  - wget https://www.coin-or.org/download/source/Cbc/Cbc-$CBC_VERSION.tgz
+  - tar -zxvf Cbc-$CBC_VERSION.tgz --strip 1
+  - ./configure --disable-shared -with-pic
+  - make
+  - make install
+  artifacts:
+    paths:
+    - Cbc/lib
+    - Cbc/include
+
+#
+# Build python
+#
+build_cp27-cp27m_x86_64_linux:
   <<: *buildlinux
-  image: ikus060/docker-python:3.6-gcc4.8
+  variables:
+    PYTHON_ENV: /opt/python/cp27-cp27m
     
-build_py37_x86_64_linux: 
+build_cp27-cp27mu_x86_64_linux: 
   <<: *buildlinux
-  image: ikus060/docker-python:3.7-gcc4.8
+  variables:
+    PYTHON_ENV: /opt/python/cp27-cp27mu
     
+build_cp34-cp34m_x86_64_linux: 
+  <<: *buildlinux
+  variables:
+    PYTHON_ENV: /opt/python/cp34-cp34m
+    
+build_cp35-cp35m_x86_64_linux: 
+  <<: *buildlinux
+  variables:
+    PYTHON_ENV: /opt/python/cp35-cp35m
+
+build_cp36-cp36m_x86_64_linux: 
+  <<: *buildlinux
+  variables:
+    PYTHON_ENV: /opt/python/cp36-cp36m
+    
+build_cp37-cp37m_x86_64_linux: 
+  <<: *buildlinux
+  variables:
+    PYTHON_ENV: /opt/python/cp37-cp37m
+
 build_py27_win32_msvc9: 
   <<: *buildwin
-  image: ikus060/docker-python:2.7-vc2008express
+  image: ikus060/manywindows
+  allow_failure: true
+  variables:
+    SWIG: swigwin-4.0.0/swig.exe
+    PYTHON_ENV: /opt/python/cp27-cp27m-win32
   
 #
-# Publish
+# Publish manylinux packages
 #
 
 publish_nexus:
@@ -84,7 +126,7 @@ publish_nexus:
   script:
   - pip install twine --upgrade
   - python setup.py sdist
-  - twine upload dist/* -u $NEXUS_USR -p $NEXUS_PWD --repository-url $NEXUS_PYPI_URL
+  - twine upload wheelhouse/* -u $NEXUS_USR -p $NEXUS_PWD --repository-url $NEXUS_PYPI_URL
 
 publish_pypi:
   stage: publish
@@ -94,5 +136,5 @@ publish_pypi:
   script:
   - pip3 install twine --upgrade
   - python setup.py sdist
-  - twine upload dist/* -u $PYPI_USR -p $PYPI_PWD
+  - twine upload wheelhouse/* -u $PYPI_USR -p $PYPI_PWD
   

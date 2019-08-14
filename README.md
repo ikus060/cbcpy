@@ -21,28 +21,13 @@ NOTICE Adding more platform is in progress.
 
 # Installation
 
-## Linux 
-
-Install Cbc binaries from bintray: https://bintray.com/coin-or/download/Cbc/2.10.3
-
-    cd /tmp
-    wget https://bintray.com/coin-or/download/download_file?file_path=Cbc-2.10.3-linux-x86_64-gcc4.8.tgz -O Cbc-2.10.3-linux-x86_64-gcc4.8.tgz
-    tar -zxvf Cbc-2.10.3-linux-x86_64-gcc4.8.tgz
-    cp -R bin include lib share /usr/local/
-    ldconfig
-
-Python packages are deployed to [cbcpy Pypi repositories](https://pypi.org/cbcpy).
+Pre-compiled python packages are deployed to [cbcpy Pypi repositories](https://pypi.org/cbcpy).
 To install `cbcpy` you should make use of `pip` command line:
 
     pip install cbcpy
     
-## Windows
+The packages include pre-compiled version of Cbc.
 
-On Windows, the binaries as statically build. So you don't need to install Cbc.
-
-To install `cbcpy` you should make use of `pip` command line:
-
-    pip install cbcpy
 
 # Usage
 

@@ -25,9 +25,22 @@ except ImportError:
     ez_setup.use_setuptools()
     from setuptools import setup, Extension
 
+
+CBC_DIR = os.environ.get('CBC_DIR', './Cbc')
+if not os.path.isdir(CBC_DIR):
+  print('CBC_DIR environment variable must be a directory: ' + CBC_DIR)
+
+include_dirs = [os.path.join(CBC_DIR, 'include/coin')]
+library_dirs = [os.path.join(CBC_DIR, 'lib')]
 libraries = ['CbcSolver', 'Cbc', 'Cgl', 'OsiClp', 'OsiCbc', 'Osi', 'Clp', 'CoinUtils']
 if os.name == 'nt':
+    extra_objects = []
     libraries = ['lib' + name for name in libraries]
+else:
+    extra_objects = ['%s/lib%s.a' % (library_dirs[0], l) for l in libraries]
+    libraries = []
+swig_opts=['-c++','-doxygen']
+swig_opts.extend(['-I%s' % i for i in include_dirs])
 
 setup(
     name='cbcpy',
@@ -40,7 +53,10 @@ setup(
     ext_modules=[Extension(
         '_cbcpy',
         ['cbcpy.i'],
-        swig_opts=['-modern'],
-        libraries=libraries)],
+        swig_opts=swig_opts,
+        include_dirs=include_dirs,
+        library_dirs=library_dirs,
+        libraries=libraries,
+        extra_objects=extra_objects)],
     py_modules=['cbcpy'],
 )
