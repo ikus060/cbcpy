@@ -25,7 +25,7 @@ except ImportError:
     ez_setup.use_setuptools()
     from setuptools import setup, Extension
 
-
+# Configure the SWIG build
 CBC_DIR = os.environ.get('CBC_DIR', './Cbc')
 if not os.path.isdir(CBC_DIR):
   print('CBC_DIR environment variable must be a directory: ' + CBC_DIR)
@@ -42,10 +42,17 @@ else:
 swig_opts=['-c++','-doxygen']
 swig_opts.extend(['-I%s' % i for i in include_dirs])
 
+# Define project description
+project_dir = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(project_dir, 'README.md')) as f:
+    long_description = f.read()
+
 setup(
     name='cbcpy',
     version="2.10.3-2",
     description='Coin-or CBC native interface for Python',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     author='Patrik Dufresne',
     author_email='info@patrikdufresne.com',
     url='https://git.patrikdufresne.com/pdsl/cbcpy',
