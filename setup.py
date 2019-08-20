@@ -68,7 +68,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.md')) as f:
 
 setup(
     name='cbcpy',
-    version="2.10.3-2",
+    use_scm_version=True,
     description='Coin-or CBC native interface for Python',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -86,5 +86,5 @@ setup(
         libraries=libraries,
         extra_objects=extra_objects)],
     py_modules=['cbcpy'],
-    setup_requires=['patch'],
+    setup_requires=['patch', 'setuptools_scm'],
 )
