@@ -101,6 +101,7 @@ publish_nexus:
   script:
   - pip install twine --upgrade
   - python setup.py sdist
+  - twine check wheelhouse/*
   - twine upload wheelhouse/* -u $NEXUS_USR -p $NEXUS_PWD --repository-url $NEXUS_PYPI_URL
 
 publish_pypi:
@@ -111,5 +112,6 @@ publish_pypi:
   script:
   - pip3 install twine --upgrade
   - python setup.py sdist
+  - twine check wheelhouse/*
   - twine upload wheelhouse/* -u $PYPI_USR -p $PYPI_PWD
   

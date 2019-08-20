@@ -43,7 +43,7 @@ install:
   - curl -LfsS -o swigwin-4.0.0.zip https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.0.0/swigwin-4.0.0.zip
   - 7z x swigwin-4.0.0.zip
   # We need wheel installed to build wheels
-  - "%PYTHON%\\python.exe -m pip install wheel"
+  - "%PYTHON%\\python.exe -m pip install setuptools>=41.0.1 wheel>=0.31.1 twine>=1.13.0"
 
 build_script:
   # Compile CBC
@@ -72,8 +72,8 @@ deploy:
 # Deploy everything to Nexus
 after_test:
   - C:\\Python37-x64\\Scripts\\pip.exe install twine --upgrade
+  - C:\\Python37-x64\\Scripts\\twine.exe check dist/*.whl
   - C:\\Python37-x64\\Scripts\\twine.exe upload dist/*.whl -u %NEXUS_USR% -p %NEXUS_PWD% --repository-url %NEXUS_PYPI_URL%
   
 deploy_script:
-  - C:\\Python37-x64\\Scripts\\pip.exe install twine --upgrade
   - C:\\Python37-x64\\Scripts\\twine.exe upload dist/*.whl -u %PYPI_USR% -p %PYPI_PWD%
