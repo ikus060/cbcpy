@@ -17,6 +17,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import os
+import sys
 try:
     from setuptools import setup, Extension
     from setuptools.command.build_ext import build_ext as _build_ext
@@ -31,7 +32,7 @@ CBC_DIR = os.environ.get('CBC_DIR', os.path.join('.', 'Cbc'))
 if not os.path.isdir(CBC_DIR):
   print('CBC_DIR environment variable must be a directory: ' + CBC_DIR)
 
-include_dirs = [os.path.join(CBC_DIR, 'include','coin')]
+include_dirs = [os.path.join(CBC_DIR, 'include', 'coin')]
 library_dirs = [os.path.join(CBC_DIR, 'lib')]
 libraries = ['CbcSolver', 'Cbc', 'Cgl', 'OsiClp', 'OsiCbc', 'Osi', 'Clp', 'CoinUtils']
 if os.name == 'nt':
@@ -60,18 +61,22 @@ class cbc_build_ext(_build_ext):
         self._patch_headers()
         _build_ext.run(self)
 
+
 # Define project description from README.md
-
-
-with open(os.path.join(os.path.dirname(__file__), 'README.md')) as f:
-    long_description = f.read()
+# With python 3.5 we are running into trouble, so let disable this. 
+long_description_content_type = long_description = None
+PY35 = sys.version_info[0:2] == (3, 5)
+if not (os.name == 'nt' and PY35):
+    with open(os.path.join(os.path.dirname(__file__), 'README.md')) as f:
+        long_description = f.read()
+        long_description_content_type = 'text/markdown'
 
 setup(
     name='cbcpy',
     use_scm_version=True,
     description='Coin-or CBC native interface for Python',
     long_description=long_description,
-    long_description_content_type='text/markdown',
+    long_description_content_type=long_description_content_type,
     author='Patrik Dufresne',
     author_email='info@patrikdufresne.com',
     url='https://git.patrikdufresne.com/pdsl/cbcpy',
@@ -87,4 +92,17 @@ setup(
         extra_objects=extra_objects)],
     py_modules=['cbcpy'],
     setup_requires=['patch', 'setuptools_scm'],
+    keywords='coin-or cbc',
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+    ],
+    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4',
 )
