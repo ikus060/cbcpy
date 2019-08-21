@@ -58,22 +58,10 @@ build_script:
   - "%PYTHON%\\python.exe setup.py build_ext --swig=swigwin-4.0.0\\swig.exe"
   - "%PYTHON%\\python.exe setup.py bdist_wheel"
 
-deploy:
-  - provider: Environment
-    name: production
-    on:
-      branch: master
-
-  - provider: Environment
-    name: production
-    on:
-      APPVEYOR_REPO_TAG: true
-
 # Deploy everything to Nexus
-after_test:
-  - C:\\Python37-x64\\Scripts\\pip.exe install twine --upgrade
-  - C:\\Python37-x64\\Scripts\\twine.exe check dist/*.whl
-  - C:\\Python37-x64\\Scripts\\twine.exe upload dist/*.whl -u %NEXUS_USR% -p %NEXUS_PWD% --repository-url %NEXUS_PYPI_URL%
-  
-deploy_script:
-  - C:\\Python37-x64\\Scripts\\twine.exe upload dist/*.whl -u %PYPI_USR% -p %PYPI_PWD%
+# Deploy tag to pypi
+deploy_script: 
+  - "%PYTHON%\\Scripts\\pip.exe install twine --upgrade"
+  - "%PYTHON%\\Scripts\\twine.exe check dist/*.whl"
+  - "%PYTHON%\\Scripts\\twine.exe upload dist/*.whl -u %NEXUS_USR% -p %NEXUS_PWD% --repository-url %NEXUS_PYPI_URL%"
+  - "if %APPVEYOR_REPO_TAG% == true ( %PYTHON%\\Scripts\\twine.exe upload dist/*.whl -u %PYPI_USR% -p %PYPI_PWD% )"
