@@ -1,0 +1,66 @@
+environment:
+  CBC_VERSION: 2.10.3
+  CBC_FILE: Cbc-2.10.3.zip
+  NEXUS_PYPI_URL: https://nexus.patrikdufresne.com/repository/pypi/
+  NEXUS_USR: deployment
+  NEXUS_PWD:
+    secure: QoqYIve6cLFpB3lcuZaaFw==
+  PYPI_USR: ikus060
+  PYPI_PWD:
+    secure: gV+oYBIb4h27bncJCZGAtihXwxsMYL67N94yIVFxLKo=
+  
+  matrix:
+
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      ARCH: x86
+      PYTHON: "C:\\Python35"
+      
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      ARCH: x86
+      PYTHON: "C:\\Python36"
+      
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      ARCH: x86
+      PYTHON: "C:\\Python37"
+      
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      ARCH: amd64
+      PYTHON: "C:\\Python35-x64"
+      
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      ARCH: amd64
+      PYTHON: "C:\\Python36-x64"
+      
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      ARCH: amd64
+      PYTHON: "C:\\Python37-x64"
+    
+artifacts:
+  - path: dist\*
+
+install:
+  # Install SWIG
+  - curl -LfsS -o swigwin-4.0.0.zip https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.0.0/swigwin-4.0.0.zip
+  - 7z x swigwin-4.0.0.zip
+  # We need wheel installed to build wheels
+  - "%PYTHON%\\Scripts\\pip.exe install setuptools>=41.0.1 wheel>=0.31.1 twine>=1.13.0"
+
+build_script:
+  # Compile CBC
+  - curl -LfsS -o %CBC_FILE% https://www.coin-or.org/download/source/Cbc/%CBC_FILE%
+  - 7z x %CBC_FILE%
+  - mv Cbc-%CBC_VERSION% Cbc
+  - CALL C:\"Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" %ARCH%
+  - C:\msys64\usr\bin\bash -lc "cd "$APPVEYOR_BUILD_FOLDER/Cbc"; ./configure --build=x86_64-w64-mingw32 --enable-msvc=MD --prefix=`pwd`"
+  - C:\msys64\usr\bin\bash -lc "cd "$APPVEYOR_BUILD_FOLDER/Cbc"; make"
+  - C:\msys64\usr\bin\bash -lc "cd "$APPVEYOR_BUILD_FOLDER/Cbc"; make install"
+  # Build cbcpy
+  - "%PYTHON%\\python.exe setup.py build_ext --swig=swigwin-4.0.0\\swig.exe"
+  - "%PYTHON%\\python.exe setup.py bdist_wheel"
+
+# Deploy everything to Nexus
+# Deploy tag to pypi
+deploy_script: 
+  - "%PYTHON%\\Scripts\\twine.exe check dist/*.whl"
+  - "%PYTHON%\\Scripts\\twine.exe upload dist/*.whl -u %NEXUS_USR% -p %NEXUS_PWD% --repository-url %NEXUS_PYPI_URL%"
+  - "if %APPVEYOR_REPO_TAG% == true ( %PYTHON%\\Scripts\\twine.exe upload dist/*.whl -u %PYPI_USR% -p %PYPI_PWD% )"

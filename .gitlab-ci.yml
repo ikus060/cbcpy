@@ -7,12 +7,23 @@ stages:
 
 variables:
   CBC_VERSION: 2.10.3
+  CBC_FILE: Cbc-$CBC_VERSION.tgz
 
 #
 # Build Stages
 #
-.build:  &build
+.buildlinux:  &buildlinux
   stage: build
+  dependencies:
+  - build_cbc_x86_64_linux
+  before_script:
+  # Install SWIG
+  - yum install -y wget pcre-devel
+  - wget https://sourceforge.net/projects/swig/files/swig/swig-4.0.0/swig-4.0.0.tar.gz
+  - tar -zxvf swig-4.0.0.tar.gz
+  - cd swig-4.0.0
+  - ./configure && make && make install
+  - cd .. && pwd
   script: 
   # Compile python module
   - $PYTHON_ENV/bin/python setup.py build_ext --swig="${SWIG:-swig-4.0.0/swig}"
@@ -28,33 +39,6 @@ variables:
     paths:
     - wheelhouse
 
-.buildlinux:  &buildlinux
-  <<: *build
-  dependencies:
-  - build_cbc_x86_64_linux
-  before_script:
-  # Install SWIG
-  - yum install -y wget pcre-devel
-  - wget https://sourceforge.net/projects/swig/files/swig/swig-4.0.0/swig-4.0.0.tar.gz
-  - tar -zxvf swig-4.0.0.tar.gz
-  - cd swig-4.0.0
-  - ./configure && make && make install
-  - cd .. && pwd
-
-.buildwin:  &buildwin
-  <<: *build
-  before_script:
-  # Install CBC
-  - export CBC_FILE=Cbc-$CBC_VERSION-win32-msvc9.zip
-  - mkdir Cbc && cd Cbc
-  - wget https://bintray.com/coin-or/download/download_file?file_path=$CBC_FILE -O $CBC_FILE
-  - unzip $CBC_FILE
-  - cd .. && pwd
-  # Install SWIG
-  - wget https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.0.0/swigwin-4.0.0.zip
-  - unzip swigwin-4.0.0.zip
-  dependencies: []
-
 #
 # Build CBC & SWIG
 #
@@ -64,8 +48,8 @@ build_cbc_x86_64_linux:
   script:
   - yum install -y wget
   - mkdir Cbc && cd Cbc
-  - wget https://www.coin-or.org/download/source/Cbc/Cbc-$CBC_VERSION.tgz
-  - tar -zxvf Cbc-$CBC_VERSION.tgz --strip 1
+  - wget https://www.coin-or.org/download/source/Cbc/$CBC_FILE
+  - tar -zxvf $CBC_FILE --strip 1
   - ./configure --disable-shared -with-pic
   - make
   - make install
@@ -87,11 +71,6 @@ build_cp27-cp27mu_x86_64_linux:
   variables:
     PYTHON_ENV: /opt/python/cp27-cp27mu
     
-build_cp34-cp34m_x86_64_linux: 
-  <<: *buildlinux
-  variables:
-    PYTHON_ENV: /opt/python/cp34-cp34m
-    
 build_cp35-cp35m_x86_64_linux: 
   <<: *buildlinux
   variables:
@@ -107,14 +86,6 @@ build_cp37-cp37m_x86_64_linux:
   variables:
     PYTHON_ENV: /opt/python/cp37-cp37m
 
-build_py27_win32_msvc9: 
-  <<: *buildwin
-  image: ikus060/manywindows
-  allow_failure: true
-  variables:
-    SWIG: swigwin-4.0.0/swig.exe
-    PYTHON_ENV: /opt/python/cp27-cp27m-win32
-  
 #
 # Publish manylinux packages
 #
@@ -125,6 +96,7 @@ publish_nexus:
   script:
   - pip install twine --upgrade
   - python setup.py sdist
+  - twine check wheelhouse/*
   - twine upload wheelhouse/* -u $NEXUS_USR -p $NEXUS_PWD --repository-url $NEXUS_PYPI_URL
 
 publish_pypi:
@@ -135,5 +107,6 @@ publish_pypi:
   script:
   - pip3 install twine --upgrade
   - python setup.py sdist
+  - twine check wheelhouse/*
   - twine upload wheelhouse/* -u $PYPI_USR -p $PYPI_PWD
   

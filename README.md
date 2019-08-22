@@ -1,4 +1,6 @@
-[![Build Status](https://git.patrikdufresne.com/pdsl/cbcpy/badges/master/pipeline.svg)](https://git.patrikdufresne.com/pdsl/cbcpy/pipelines)
+[![Linux Build Status](https://git.patrikdufresne.com/pdsl/cbcpy/badges/master/pipeline.svg)](https://git.patrikdufresne.com/pdsl/cbcpy/pipelines)
+
+[![Windows Build status](https://ci.appveyor.com/api/projects/status/whyjc5s9vpulkno6?svg=true)](https://ci.appveyor.com/project/ikus060/cbcpy)
 
 # cbcpy
 
@@ -6,20 +8,24 @@ Native Python interface for Coin-or Branch and Cut Solver ([Cbc](https://github.
 
 # Description
 
-This project provide the build mechanism to automatically generate the wrapper code between Cbc c++ code and python using [SWIG](http://www.swig.org/).
+This project provide the build mechanism to automatically generate the wrapper code between Cbc C++ code and Python using [SWIG](http://www.swig.org/).
 
 This project was develop as part of the CBC Coin-or Sprint Aug 2019.
 
-Binaries for the following platform are pre-compiled:
+Binaries for the following platform are pre-compiled and available on [pypi](https://pypi.org/project/cbcpy/).
 * linux x86_64 / python 2.7
 * linux x86_64 / python 3.5
 * linux x86_64 / python 3.6
 * linux x86_64 / python 3.7
-* win32 / python 2.7
+* win x86 / python 2.7
+* win x86 / python 3.5
+* win x86 / python 3.6
+* win x86 / python 3.7
+* win x86_64 / python 3.5
+* win x86_64 / python 3.6
+* win x86_64 / python 3.7
 
-**Linux i386 is not supported.**
-
-NOTICE Adding more platform is in progress.
+Linux x86 is not supported.
 
 # Installation
 
@@ -30,6 +36,7 @@ To install `cbcpy` you should make use of `pip` command line:
     
 The packages include pre-compiled version of Cbc.
 
+**For Windows: You must install [Visual C++ Redistributable for VS2015](https://www.microsoft.com/en-us/download/details.aspx?id=52685)**
 
 # Usage
 
@@ -60,3 +67,24 @@ Original documentation from Cbc project is available in python using the `help()
     >>> import cbcpy
     >>> help(cbcpy)
     Help on module cbcpy:
+    
+# Troubleshooting
+
+## The specified module could not be found.
+```
+>>> import cbcpy
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "C:\Python37-32\lib\site-packages\cbcpy.py", line 15, in <module>
+    import _cbcpy
+ImportError: DLL load failed: The specified module could not be found.
+```
+This error might occur on Windows platform when the file `msvcp140.dll` cannot
+be found. You must install [Visual C++ Redistributable for VS2015](https://www.microsoft.com/en-us/download/details.aspx?id=52685).
+For 32-bit download "vc_redist.x86.exe" file and for 64-bit download "vc_redist.x64.exe" file.
+
+# Support
+
+To get community help for cbcpy, you may send email to the [Cbc mailing list](https://list.coin-or.org/mailman/listinfo/cbc).
+
+You may also get paid support by contacting [Patrik Dufresne Service Logiciel](http://www.patrikdufresne.com/en/support/#form).
